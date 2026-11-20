@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Frutas y Verduras Mancia | Retiro Rápido y Mayoreo en Soyapango</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-900 antialiased pb-28">
+
+  <!-- Barra Superior Clara y Accesible -->
+  <header class="sticky top-0 z-40 bg-white border-b border-stone-200 shadow-sm">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl shrink-0 shadow-xs">
+          🥬
+        </div>
+        <div class="min-w-0">
+          <h1 id="storeTitle" contenteditable="true" title="Toca para editar el nombre" class="text-lg sm:text-2xl font-extrabold text-stone-900 leading-tight truncate outline-none focus:bg-emerald-50 rounded">
+            Frutas y Verduras Mancia
+          </h1>
+          <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
+            <span id="openStatusBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-200 text-stone-700">
+              Consultando horario...
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <a href="#ubicacion" class="shrink-0 inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-sm px-3.5 py-2.5 rounded-xl border border-stone-300 transition">
+        <span>📍</span>
+        <span class="hidden sm:inline">Cómo llegar</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Encabezado Simple con 2 Opciones Claras -->
+  <section class="bg-gradient-to-br from-emerald-800 via-emerald-700 to-emerald-900 text-white">
+    <div class="max-w-5xl mx-auto px-4 py-7 sm:py-10 space-y-5">
+      <div class="space-y-2 max-w-2xl">
+        <span class="inline-block bg-amber-400 text-stone-950 text-xs sm:text-sm font-extrabold px-3 py-1 rounded-full">
+          📍 Frente a Colegio Don Bosco, Soyapango
+        </span>
+        <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">
+          Elige tus verduras y pasa recogiéndolas listas sin hacer fila.
+        </h2>
+        <p class="text-emerald-100 text-base sm:text-lg">
+          Solo toca <strong>+ Agregar</strong> en lo que necesites o envíanos una nota de voz si prefieres no escribir.
+        </p>
+      </div>
+
+      <!-- Botones Grandes de Acción Rápida -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl">
+        <a href="#catalogo" class="flex items-center justify-center gap-2.5 bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-base sm:text-lg py-4 px-5 rounded-2xl shadow-md transition active:scale-98">
+          <span>🛒</span>
+          <span>1. Elegir Productos Abajo</span>
+        </a>
+        <a
+          href="https://wa.me/50368271549?text=Hola%20Frutas%20y%20Verduras%20Mancia%2C%20quisiera%20hacer%20un%20pedido%20para%20recoger%20en%20el%20local."
+          target="_blank"
+          class="flex items-center justify-center gap-2.5 bg-white text-emerald-900 hover:bg-emerald-50 font-extrabold text-base sm:text-lg py-4 px-5 rounded-2xl shadow-md transition active:scale-98"
+        >
+          <span>🎤</span>
+          <span>Pedir por Nota de Voz</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Catálogo Grande y Táctil -->
+  <main id="catalogo" class="max-w-5xl mx-auto px-4 py-7">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+      <div>
+        <h3 class="text-xl sm:text-2xl font-extrabold text-stone-900">¿Qué vas a llevar hoy?</h3>
+        <p class="text-sm sm:text-base text-stone-600">Toca <strong>+ Agregar</strong> para sumar a tu bolsa (Solo retiro en local)</p>
+      </div>
+
+      <!-- Buscador Amplio -->
+      <div class="relative w-full sm:w-80">
+        <input
+          type="text"
+          id="searchInput"
+          oninput="renderProducts()"
+          placeholder="Escribe aquí para buscar..."
+          class="w-full pl-11 pr-10 py-3.5 bg-white border-2 border-stone-300 rounded-2xl text-base font-medium focus:outline-none focus:border-emerald-600"
+        />
+        <span class="absolute left-3.5 top-3.5 text-xl">🔍</span>
+        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-3 text-stone-400 hover:text-stone-700 font-bold text-lg px-1.5">
+          ✕
+        </button>
+      </div>
+    </div>
+
+    <!-- Filtros Grandes -->
+    <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-3 mb-5">
+      <button onclick="setCategory('todos')" data-cat="todos" class="cat-btn active px-5 py-3 rounded-2xl text-base font-extrabold bg-emerald-700 text-white shadow-xs transition shrink-0">
+        Todos (10)
+      </button>
+      <button onclick="setCategory('verduras')" data-cat="verduras" class="cat-btn px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0">
+        🥬 Verduras
+      </button>
+      <button onclick="setCategory('frutas')" data-cat="frutas" class="cat-btn px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0">
+        🥑 Frutas
+      </button>
+    </div>
+
+    <!-- Cuadrícula de Productos (2 columnas en tablet, 3 en PC, 1 amplia en móvil para botones grandes) -->
+    <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+      <!-- Renderizado dinámico -->
+    </div>
+  </main>
+
+  <!-- Sección Mayoreo (Línea Secundaria 7969-8478) -->
+  <section id="mayoreo" class="max-w-5xl mx-auto px-4 pb-8">
+    <div class="bg-amber-50 border-2 border-amber-300 rounded-3xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-5">
+      <div class="space-y-1">
+        <span class="inline-block bg-amber-400 text-stone-950 text-xs font-extrabold uppercase tracking-wide px-3 py-1 rounded-full">
+          📦 Ventas por Mayor
+        </span>
+        <h3 class="text-xl font-extrabold text-stone-900">¿Necesitas información sobre mayoreo?</h3>
+        <p class="text-base text-stone-700">
+          Consulta precios por bulto, caja o volumen directamente en nuestro WhatsApp de mayoreo.
+        </p>
+      </div>
+      <a
+        href="https://wa.me/50379698478?text=Hola%20Frutas%20y%20Verduras%20Mancia%2C%20quisiera%20informaci%C3%B3n%20sobre%20precios%20de%20mayoreo."
+        target="_blank"
+        class="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-amber-300 font-extrabold text-base px-6 py-4 rounded-2xl shadow-sm transition"
+      >
+        <span>📲 Mayoreo: 7969-8478</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Sección Ubicación, Horarios y Teléfonos -->
+  <section id="ubicacion" class="bg-white border-t border-stone-200 py-10">
+    <div class="max-w-5xl mx-auto px-4 grid lg:grid-cols-12 gap-8 items-start">
+      <div class="lg:col-span-5 space-y-4">
+        <h3 class="text-2xl font-extrabold text-stone-900">Dónde estamos y horarios</h3>
+
+        <div class="space-y-4 bg-stone-50 p-5 rounded-3xl border border-stone-200 text-base">
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">📍</span>
+            <div>
+              <p class="font-extrabold text-stone-900">Ubicación (Solo Retiro)</p>
+              <p class="text-stone-700">Frente a Colegio Don Bosco, Soyapango, San Salvador.</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">🕒</span>
+            <div>
+              <p class="font-extrabold text-stone-900">Horarios</p>
+              <p class="text-stone-700"><strong>Lunes a Viernes:</strong><br>6:00 AM – 3:00 PM y 5:30 PM – 9:30 PM</p>
+              <p class="text-stone-700 mt-1"><strong>Sábado y Domingo:</strong><br>6:00 AM – 6:00 PM</p>
+            </div>
+          </div>
+
+          <div class="flex items-start gap-3">
+            <span class="text-2xl">📞</span>
+            <div class="space-y-1">
+              <p class="font-extrabold text-stone-900">Teléfonos / WhatsApp</p>
+              <p class="text-stone-700">
+                Pedidos retiro: <a href="https://wa.me/50368271549" target="_blank" class="text-emerald-700 font-extrabold underline">6827-1549</a>
+              </p>
+              <p class="text-stone-700">
+                Info mayoreo: <a href="https://wa.me/50379698478?text=Hola%20Frutas%20y%20Verduras%20Mancia%2C%20solicito%20informaci%C3%B3n%20sobre%20mayoreo." target="_blank" class="text-amber-800 font-extrabold underline">7969-8478</a>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
+          <a
+            href="https://www.google.com/maps/search/?api=1&query=Colegio+Don+Bosco+Soyapango+El+Salvador"
+            target="_blank"
+            class="w-full inline-flex items-center justify-center gap-2 bg-stone-900 hover:bg-stone-800 text-white font-extrabold text-base py-4 px-5 rounded-2xl transition"
+          >
+            <span>🗺️ Ver en Google Maps</span>
+          </a>
+          <a
+            href="tel:+50368271549"
+            class="w-full inline-flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border-2 border-emerald-200 font-extrabold text-base py-3.5 px-5 rounded-2xl transition"
+          >
+            <span>📞 Llamar al 6827-1549</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="lg:col-span-7">
+        <div class="w-full h-80 sm:h-96 rounded-3xl overflow-hidden border-2 border-stone-200 shadow-xs bg-stone-100">
+          <iframe
+            title="Mapa ubicación Frutas y Verduras Mancia frente a Colegio Don Bosco Soyapango"
+            src="https://maps.google.com/maps?q=Colegio%20Don%20Bosco%20Soyapango%20El%20Salvador&t=&z=17&ie=UTF8&iwloc=&output=embed"
+            class="w-full h-full border-0"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+          ></iframe>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Barra Inferior Fija (Aparece automáticamente cuando hay productos en la bolsa) -->
+  <div id="stickyCheckoutBar" class="fixed bottom-0 inset-x-0 z-40 bg-emerald-900 text-white border-t-2 border-emerald-500 shadow-2xl px-4 py-3.5 transition-transform duration-300 translate-y-full">
+    <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
+      <div>
+        <p id="stickyItemsCount" class="text-xs sm:text-sm font-bold text-emerald-200">0 productos seleccionados</p>
+        <p class="text-xl sm:text-2xl font-extrabold text-white">Total: <span id="stickyTotalAmount" class="text-amber-300">$0.00</span></p>
+      </div>
+      <button
+        onclick="toggleCart(true)"
+        class="bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-base sm:text-lg px-5 sm:px-7 py-3.5 rounded-2xl shadow-lg transition active:scale-95 flex items-center gap-2"
+      >
+        <span>Revisar y Enviar</span>
+        <span>➔</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Pantalla Modal / Cajón Grande para Confirmar Pedido -->
+  <div id="cartDrawer" class="fixed inset-0 z-50 hidden">
+    <div onclick="toggleCart(false)" class="absolute inset-0 bg-stone-950/70 backdrop-blur-xs"></div>
+    <aside class="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl flex flex-col">
+      <div class="p-4 sm:p-5 border-b border-stone-200 flex items-center justify-between bg-emerald-800 text-white">
+        <div>
+          <h4 class="font-extrabold text-xl">Tu Lista para Retiro</h4>
+          <p class="text-xs sm:text-sm text-emerald-100">Recoge frente a Colegio Don Bosco</p>
+        </div>
+        <button onclick="toggleCart(false)" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 font-extrabold text-sm">
+          ✕ Cerrar
+        </button>
+      </div>
+
+      <!-- Lista de Items con controles grandes -->
+      <div id="cartItemsContainer" class="flex-1 overflow-y-auto p-4 space-y-3">
+        <!-- Renderizado dinámico -->
+      </div>
+
+      <!-- Formulario Sencillo de 3 Pasos -->
+      <div class="p-4 sm:p-5 border-t-2 border-stone-200 bg-stone-50 space-y-3.5">
+        <div class="flex items-center justify-between text-lg font-extrabold text-stone-900">
+          <span>Total a pagar al recoger:</span>
+          <span id="cartTotal" class="text-2xl text-emerald-700">$0.00</span>
+        </div>
+
+        <div class="space-y-3 text-base">
+          <div>
+            <label class="block text-xs font-extrabold uppercase text-stone-600 mb-1">1. ¿A nombre de quién preparamos la bolsa?</label>
+            <input
+              type="text"
+              id="customerName"
+              placeholder="Ej. Doña María / Carlos"
+              class="w-full px-4 py-3 bg-white border-2 border-stone-300 rounded-xl text-base font-medium focus:outline-none focus:border-emerald-600"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold uppercase text-stone-600 mb-1">2. ¿Cuándo pasarás a recoger?</label>
+            <select id="pickupTime" class="w-full px-4 py-3 bg-white border-2 border-stone-300 rounded-xl text-base font-medium focus:outline-none focus:border-emerald-600">
+              <option value="En 15 - 20 minutos">En 15 - 20 minutos</option>
+              <option value="En 30 - 45 minutos">En 30 - 45 minutos</option>
+              <option value="Turno mañana / mediodía (6:00 AM - 3:00 PM)">Turno mañana / mediodía (6:00 AM - 3:00 PM)</option>
+              <option value="Turno tarde / noche L-V (5:30 PM - 9:30 PM)">Turno tarde / noche L-V (5:30 PM - 9:30 PM)</option>
+              <option value="Fin de semana (6:00 AM - 6:00 PM)">Fin de semana (6:00 AM - 6:00 PM)</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-xs font-extrabold uppercase text-stone-600 mb-1">3. ¿Cómo vas a pagar?</label>
+            <select id="paymentMethod" class="w-full px-4 py-3 bg-white border-2 border-stone-300 rounded-xl text-base font-medium focus:outline-none focus:border-emerald-600">
+              <option value="Efectivo al recoger">Efectivo al recoger</option>
+              <option value="Transferencia bancaria">Transferencia bancaria</option>
+            </select>
+          </div>
+        </div>
+
+        <button
+          onclick="sendWhatsAppOrder()"
+          class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg py-4 px-5 rounded-2xl shadow-lg transition active:scale-98 flex items-center justify-center gap-2"
+        >
+          <span>📲 Enviar Pedido por WhatsApp</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    const WHATSAPP_ORDERS = "50368271549";
+    const WHATSAPP_WHOLESALE = "50379698478";
+
+    const PRODUCTS = [
+      {
+        id: 1,
+        name: "Tomate de Ensalada",
+        category: "verduras",
+        price: 1.00,
+        unit: "10 a 12 unidades x $1.00",
+        badge: "Fresco hoy",
+        image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 2,
+        name: "Tomate para Salsa",
+        category: "verduras",
+        price: 1.00,
+        unit: "12 unidades x $1.00",
+        badge: "Oferta diaria",
+        image: "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 3,
+        name: "Cebolla Blanca",
+        category: "verduras",
+        price: 1.00,
+        unit: "4 unidades x $1.00",
+        badge: "",
+        image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 4,
+        name: "Cebolla Morada",
+        category: "verduras",
+        price: 1.00,
+        unit: "10 unidades x $1.00",
+        badge: "Ideal ensaladas",
+        image: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 5,
+        name: "Güisquil (4 x $1.00)",
+        category: "verduras",
+        price: 1.00,
+        unit: "4 unidades x $1.00",
+        badge: "Económico",
+        image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 6,
+        name: "Güisquil Grande (3 x $1.00)",
+        category: "verduras",
+        price: 1.00,
+        unit: "3 unidades grandes x $1.00",
+        badge: "Seleccionado",
+        image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 7,
+        name: "Chile Jalapeño",
+        category: "verduras",
+        price: 1.00,
+        unit: "6 unidades x $1.00",
+        badge: "",
+        image: "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 8,
+        name: "Aguacate",
+        category: "frutas",
+        price: 0.50,
+        unit: "Precio por unidad ($0.50 c/u)",
+        badge: "Al punto",
+        image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 9,
+        name: "Rábano",
+        category: "verduras",
+        price: 0.50,
+        unit: "1 manojo fresco ($0.50)",
+        badge: "Recién cortado",
+        image: "https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 10,
+        name: "Pepino",
+        category: "verduras",
+        price: 1.00,
+        unit: "3 a 4 unidades x $1.00",
+        badge: "Fresco hoy",
+        image: "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80"
+      }
+    ];
+
+    let currentCategory = "todos";
+    let cart = [];
+
+    function updateOpenStatus() {
+      const badge = document.getElementById("openStatusBadge");
+      if (!badge) return;
+
+      const nowSV = new Date(new Date().toLocaleString("en-US", { timeZone: "America/El_Salvador" }));
+      const day = nowSV.getDay();
+      const minutes = nowSV.getHours() * 60 + nowSV.getMinutes();
+
+      let isOpen = false;
+      let label = "";
+
+      if (day >= 1 && day <= 5) {
+        if (minutes >= 360 && minutes < 900) {
+          isOpen = true;
+          label = "🟢 Abierto ahora • Cierra 3:00 PM";
+        } else if (minutes >= 1050 && minutes < 1290) {
+          isOpen = true;
+          label = "🟢 Abierto ahora • Cierra 9:30 PM";
+        } else if (minutes >= 900 && minutes < 1050) {
+          label = "🟠 Reabre a las 5:30 PM";
+        } else {
+          label = "🔴 Cerrado • Abre 6:00 AM";
+        }
+      } else {
+        if (minutes >= 360 && minutes < 1080) {
+          isOpen = true;
+          label = "🟢 Abierto ahora • Cierra 6:00 PM";
+        } else {
+          label = "🔴 Cerrado • Abre 6:00 AM";
+        }
+      }
+
+      badge.textContent = label;
+      badge.className = isOpen
+        ? "text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900"
+        : "text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-200 text-stone-800";
+    }
+
+    function setCategory(cat) {
+      currentCategory = cat;
+      document.querySelectorAll(".cat-btn").forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = "cat-btn active px-5 py-3 rounded-2xl text-base font-extrabold bg-emerald-700 text-white shadow-xs transition shrink-0";
+        } else {
+          btn.className = "cat-btn px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0";
+        }
+      });
+      renderProducts();
+    }
+
+    function clearSearch() {
+      const input = document.getElementById("searchInput");
+      input.value = "";
+      renderProducts();
+    }
+
+    function getProductQty(productId) {
+      const item = cart.find(i => i.id === productId);
+      return item ? item.qty : 0;
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById("productsGrid");
+      const searchInput = document.getElementById("searchInput");
+      const clearBtn = document.getElementById("clearSearchBtn");
+      const search = searchInput.value.toLowerCase().trim();
+
+      clearBtn.classList.toggle("hidden", search.length === 0);
+
+      const filtered = PRODUCTS.filter(p => {
+        const matchesCat = currentCategory === "todos" || p.category === currentCategory;
+        const matchesSearch = p.name.toLowerCase().includes(search) || p.unit.toLowerCase().includes(search);
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div class="col-span-full text-center py-12 bg-white rounded-3xl border-2 border-stone-200 space-y-3">
+            <p class="text-lg text-stone-700 font-bold">No encontramos "${search}".</p>
+            <button onclick="clearSearch()" class="bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl">
+              Ver todos los productos
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(product => {
+        const qty = getProductQty(product.id);
+        return `
+          <article class="bg-white rounded-3xl border-2 ${qty > 0 ? "border-emerald-600 ring-2 ring-emerald-100" : "border-stone-200"} overflow-hidden shadow-xs transition flex flex-col">
+            <div class="relative h-44 bg-stone-100 overflow-hidden">
+              <img src="${product.image}" alt="${product.name}" class="w-full h-full object-cover" loading="lazy" />
+              ${product.badge ? `<span class="absolute top-3 left-3 bg-amber-400 text-stone-950 text-xs font-extrabold px-3 py-1 rounded-full shadow-xs">${product.badge}</span>` : ""}
+              ${qty > 0 ? `<span class="absolute top-3 right-3 bg-emerald-700 text-white text-xs font-extrabold px-3 py-1 rounded-full shadow-sm">En tu bolsa: ${qty}</span>` : ""}
+            </div>
+            <div class="p-4 sm:p-5 flex-1 flex flex-col justify-between gap-4">
+              <div>
+                <h4 class="font-extrabold text-stone-900 text-lg sm:text-xl leading-snug">${product.name}</h4>
+                <p class="text-sm sm:text-base font-semibold text-stone-600 mt-1">${product.unit}</p>
+              </div>
+
+              <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-3">
+                <span class="text-2xl font-extrabold text-emerald-700">$${product.price.toFixed(2)}</span>
+
+                ${qty === 0 ? `
+                  <button
+                    onclick="addToCart(${product.id})"
+                    class="bg-emerald-600 hover:bg-emerald-700 text-white text-base font-extrabold px-5 py-3 rounded-2xl shadow-xs transition active:scale-95"
+                  >
+                    + Agregar
+                  </button>
+                ` : `
+                  <div class="flex items-center gap-2 bg-emerald-50 border-2 border-emerald-600 rounded-2xl p-1">
+                    <button
+                      onclick="changeQty(${product.id}, -1)"
+                      aria-label="Quitar uno"
+                      class="w-11 h-11 rounded-xl bg-white text-stone-900 font-extrabold text-xl shadow-xs hover:bg-stone-100 active:scale-95"
+                    >−</button>
+                    <span class="w-8 text-center font-extrabold text-lg text-emerald-950">${qty}</span>
+                    <button
+                      onclick="changeQty(${product.id}, 1)"
+                      aria-label="Agregar otro"
+                      class="w-11 h-11 rounded-xl bg-emerald-600 text-white font-extrabold text-xl shadow-xs hover:bg-emerald-700 active:scale-95"
+                    >+</button>
+                  </div>
+                `}
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function addToCart(productId) {
+      const product = PRODUCTS.find(p => p.id === productId);
+      if (!product) return;
+
+      const existing = cart.find(item => item.id === productId);
+      if (existing) {
+        existing.qty += 1;
+      } else {
+        cart.push({ ...product, qty: 1 });
+      }
+      renderProducts();
+      updateCartUI();
+    }
+
+    function changeQty(productId, delta) {
+      const index = cart.findIndex(item => item.id === productId);
+      if (index === -1) return;
+
+      cart[index].qty += delta;
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+      }
+      renderProducts();
+      updateCartUI();
+    }
+
+    function updateCartUI() {
+      const container = document.getElementById("cartItemsContainer");
+      const totalEl = document.getElementById("cartTotal");
+      const stickyBar = document.getElementById("stickyCheckoutBar");
+      const stickyItemsCount = document.getElementById("stickyItemsCount");
+      const stickyTotalAmount = document.getElementById("stickyTotalAmount");
+
+      const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+      const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      totalEl.textContent = `$${totalAmount.toFixed(2)}`;
+      stickyTotalAmount.textContent = `$${totalAmount.toFixed(2)}`;
+      stickyItemsCount.textContent = totalItems === 1 ? "1 producto en tu bolsa" : `${totalItems} productos en tu bolsa`;
+
+      if (totalItems > 0) {
+        stickyBar.classList.remove("translate-y-full");
+      } else {
+        stickyBar.classList.add("translate-y-full");
+      }
+
+      if (cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-stone-500 space-y-2">
+            <p class="text-4xl">🧺</p>
+            <p class="text-lg font-extrabold text-stone-800">Tu bolsa está vacía</p>
+            <p class="text-sm">Cierra esta ventana y toca <strong>+ Agregar</strong> en las verduras o frutas que necesites.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = cart.map(item => `
+        <div class="flex items-center justify-between gap-3 bg-stone-50 p-3.5 rounded-2xl border-2 border-stone-200">
+          <div class="min-w-0">
+            <p class="font-extrabold text-base text-stone-900">${item.name}</p>
+            <p class="text-xs font-semibold text-stone-500">${item.unit}</p>
+            <p class="text-base font-extrabold text-emerald-700 mt-0.5">$${(item.price * item.qty).toFixed(2)}</p>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button onclick="changeQty(${item.id}, -1)" class="w-10 h-10 rounded-xl bg-white border-2 border-stone-300 font-extrabold text-lg text-stone-800">−</button>
+            <span class="text-base font-extrabold w-6 text-center">${item.qty}</span>
+            <button onclick="changeQty(${item.id}, 1)" class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-extrabold text-lg">+</button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function toggleCart(open) {
+      const drawer = document.getElementById("cartDrawer");
+      drawer.classList.toggle("hidden", !open);
+    }
+
+    function sendWhatsAppOrder() {
+      if (cart.length === 0) {
+        alert("Agrega al menos un producto antes de enviar tu pedido.");
+        return;
+      }
+
+      const storeName = document.getElementById("storeTitle").innerText.trim();
+      const customerName = document.getElementById("customerName").value.trim() || "Cliente";
+      const pickupTime = document.getElementById("pickupTime").value;
+      const paymentMethod = document.getElementById("paymentMethod").value;
+
+      const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
+
+      const lines = cart.map(item =>
+        `• ${item.qty}x ${item.name} (${item.unit}) — $${(item.price * item.qty).toFixed(2)}`
+      ).join("\n");
+
+      const message =
+        `Hola *${storeName}*, quiero hacer un pedido para *RETIRO EN LOCAL* (frente a Colegio Don Bosco):\n\n` +
+        `*Nombre:* ${customerName}\n` +
+        `*Hora de retiro:* ${pickupTime}\n` +
+        `*Pago:* ${paymentMethod}\n\n` +
+        `*Productos:*\n${lines}\n\n` +
+        `*Total estimado:* $${totalAmount.toFixed(2)}`;
+
+      const url = `https://wa.me/${WHATSAPP_ORDERS}?text=${encodeURIComponent(message)}`;
+      window.open(url, "_blank");
+    }
+
+    updateOpenStatus();
+    renderProducts();
+    updateCartUI();
+  </script>
+</body>
+</html>
