@@ -20,13 +20,13 @@
 
   <!-- Barra Superior Clara y Accesible -->
   <header class="sticky top-0 z-40 bg-white border-b border-stone-200 shadow-sm">
-    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between gap-3">
+    <div class="max-w-5xl mx-auto px-4 py-3.5 flex items-center justify-between gap-2 sm:gap-3">
       <div class="flex items-center gap-3 min-w-0">
-        <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl shrink-0 shadow-xs">
+        <div class="w-11 h-11 sm:w-12 sm:h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl shrink-0 shadow-xs">
           🥬
         </div>
         <div class="min-w-0">
-          <h1 id="storeTitle" class="text-lg sm:text-2xl font-extrabold text-stone-900 leading-tight truncate">
+          <h1 id="storeTitle" class="text-base sm:text-2xl font-extrabold text-stone-900 leading-tight truncate">
             Frutas y Verduras Mancía
           </h1>
           <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
@@ -37,10 +37,20 @@
         </div>
       </div>
 
-      <a href="#ubicacion" class="shrink-0 inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-sm px-3.5 py-2.5 rounded-xl border border-stone-300 transition">
-        <span>📍</span>
-        <span class="hidden sm:inline">Cómo llegar</span>
-      </a>
+      <div class="flex items-center gap-2 shrink-0">
+        <button
+          onclick="openAdminModal()"
+          class="inline-flex items-center gap-1 bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs sm:text-sm px-3 py-2.5 rounded-xl transition"
+          title="Panel de Inventario"
+        >
+          <span>⚙️</span>
+          <span>Admin</span>
+        </button>
+        <a href="#ubicacion" class="inline-flex items-center gap-1.5 bg-stone-100 hover:bg-stone-200 text-stone-800 font-bold text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-stone-300 transition">
+          <span>📍</span>
+          <span class="hidden sm:inline">Cómo llegar</span>
+        </a>
+      </div>
     </div>
   </header>
 
@@ -414,7 +424,7 @@
     const WHATSAPP_ORDERS = "50368271549";
     const WHATSAPP_WHOLESALE = "50379698478";
     const ADMIN_PASSCODE = "mancia2026";
-    const STORAGE_KEY = "mancia_inventory_v1";
+    const STORAGE_KEY = "mancia_inventory_v3";
 
     const DEFAULT_PRODUCTS = [
       {
@@ -899,7 +909,6 @@
       window.open(url, "_blank");
     }
 
-    // Funciones del Panel Privado de Inventario
     function openAdminModal() {
       const modal = document.getElementById("adminModal");
       const loginView = document.getElementById("adminLoginView");
