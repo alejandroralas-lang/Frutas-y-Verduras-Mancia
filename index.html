@@ -199,6 +199,22 @@
     </div>
   </section>
 
+  <!-- Pie de Página con Acceso Privado de Inventario -->
+  <footer class="bg-stone-900 text-stone-300 py-8 border-t border-stone-800">
+    <div class="max-w-5xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
+      <div class="text-center sm:text-left">
+        <p class="font-extrabold text-white">Frutas y Verduras Mancía</p>
+        <p class="text-stone-400">Retiro en local • Soyapango, El Salvador</p>
+      </div>
+      <button
+        onclick="openAdminModal()"
+        class="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition"
+      >
+        <span>🔐 Inventario (Dueño / Admin)</span>
+      </button>
+    </div>
+  </footer>
+
   <!-- Barra Inferior Fija -->
   <div id="stickyCheckoutBar" class="fixed bottom-0 inset-x-0 z-40 bg-emerald-900 text-white border-t-2 border-emerald-500 shadow-2xl px-4 py-3.5 transition-transform duration-300 translate-y-full">
     <div class="max-w-5xl mx-auto flex items-center justify-between gap-4">
@@ -283,11 +299,124 @@
     </aside>
   </div>
 
+  <!-- Modal Privado de Inventario (Dueño y Administrador) -->
+  <div id="adminModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+    <div onclick="closeAdminModal()" class="fixed inset-0 bg-stone-950/75 backdrop-blur-xs"></div>
+    <div class="relative min-h-screen flex items-center justify-center p-4">
+      <div class="relative w-full max-w-4xl bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden">
+        <!-- Cabecera del Modal -->
+        <div class="p-4 sm:p-5 bg-stone-900 text-white flex items-center justify-between gap-3">
+          <div>
+            <h4 class="text-lg sm:text-xl font-extrabold">Panel de Inventario Digital</h4>
+            <p class="text-xs sm:text-sm text-stone-300">Control rápido de disponibilidad, precios y nuevos ingresos</p>
+          </div>
+          <button onclick="closeAdminModal()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-sm">
+            ✕ Cerrar
+          </button>
+        </div>
+
+        <!-- Pantalla de Contraseña -->
+        <div id="adminLoginView" class="p-6 sm:p-8 max-w-md mx-auto space-y-4 text-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-2xl">
+            🔐
+          </div>
+          <h5 class="text-xl font-extrabold text-stone-900">Acceso restringido al equipo</h5>
+          <p class="text-sm text-stone-600">Ingresa la clave para administrar el inventario de Frutas y Verduras Mancía.</p>
+          <input
+            type="password"
+            id="adminPasswordInput"
+            onkeydown="if(event.key === 'Enter') verifyAdminPassword()"
+            placeholder="Escribe la contraseña..."
+            class="w-full px-4 py-3 bg-stone-50 border-2 border-stone-300 rounded-xl text-base font-semibold text-center focus:outline-none focus:border-emerald-600"
+          />
+          <p id="adminAuthError" class="hidden text-xs font-bold text-red-600">Contraseña incorrecta. Intenta de nuevo.</p>
+          <button
+            onclick="verifyAdminPassword()"
+            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base py-3.5 px-5 rounded-2xl transition"
+          >
+            Entrar al Inventario
+          </button>
+        </div>
+
+        <!-- Panel de Inventario Autenticado -->
+        <div id="adminDashboardView" class="hidden p-4 sm:p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+          <!-- Acciones Generales -->
+          <div class="flex flex-wrap items-center justify-between gap-3 bg-stone-100 p-3.5 rounded-2xl border border-stone-200">
+            <div class="text-xs sm:text-sm font-bold text-stone-700">
+              Los cambios se guardan en este dispositivo y actualizan el catálogo al instante.
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <button
+                onclick="copyProductsCode()"
+                class="bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition"
+              >
+                📋 Copiar Código para GitHub
+              </button>
+              <button
+                onclick="resetDefaultProducts()"
+                class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition"
+              >
+                ↺ Restaurar Base
+              </button>
+            </div>
+          </div>
+
+          <!-- Formulario para Agregar Producto Nuevo -->
+          <form onsubmit="addNewInventoryProduct(event)" class="bg-emerald-50/70 border-2 border-emerald-200 rounded-2xl p-4 space-y-3">
+            <h6 class="font-extrabold text-base text-emerald-950">+ Agregar Producto Nuevo al Inventario</h6>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+              <input
+                type="text"
+                id="newProdName"
+                required
+                placeholder="Nombre (ej. Papa soloma)"
+                class="px-3 py-2.5 bg-white border border-stone-300 rounded-xl text-sm font-medium"
+              />
+              <select id="newProdCategory" class="px-3 py-2.5 bg-white border border-stone-300 rounded-xl text-sm font-medium">
+                <option value="verduras">🥬 Verduras</option>
+                <option value="frutas">🥑 Frutas</option>
+              </select>
+              <input
+                type="number"
+                step="0.01"
+                min="0.05"
+                id="newProdPrice"
+                required
+                placeholder="Precio USD (ej. 1.00)"
+                class="px-3 py-2.5 bg-white border border-stone-300 rounded-xl text-sm font-medium"
+              />
+              <input
+                type="text"
+                id="newProdUnit"
+                required
+                placeholder="Presentación (ej. 4 x $1.00)"
+                class="px-3 py-2.5 bg-white border border-stone-300 rounded-xl text-sm font-medium"
+              />
+              <button
+                type="submit"
+                class="bg-emerald-700 hover:bg-emerald-800 text-white font-extrabold text-sm px-4 py-2.5 rounded-xl transition"
+              >
+                + Guardar Producto
+              </button>
+            </div>
+          </form>
+
+          <!-- Lista Editable de Productos -->
+          <div id="adminProductsList" class="space-y-3">
+            <!-- Renderizado dinámico -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const WHATSAPP_ORDERS = "50368271549";
     const WHATSAPP_WHOLESALE = "50379698478";
+    const ADMIN_PASSCODE = "mancia2026";
+    const STORAGE_KEY = "mancia_inventory_v1";
 
-    const PRODUCTS = [
+    const DEFAULT_PRODUCTS = [
       {
         id: 1,
         name: "Tomate (12 x $1)",
@@ -295,6 +424,7 @@
         price: 1.00,
         unit: "12 unidades x $1.00",
         badge: "Fresco hoy",
+        available: true,
         image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -304,6 +434,7 @@
         price: 1.00,
         unit: "10 unidades x $1.00",
         badge: "Oferta diaria",
+        available: true,
         image: "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -313,6 +444,7 @@
         price: 1.00,
         unit: "4 unidades x $1.00",
         badge: "",
+        available: true,
         image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -322,6 +454,7 @@
         price: 1.00,
         unit: "4 unidades x $1.00",
         badge: "Ideal ensaladas",
+        available: true,
         image: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -331,6 +464,7 @@
         price: 1.00,
         unit: "3 unidades x $1.00",
         badge: "Fresco hoy",
+        available: true,
         image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -340,6 +474,7 @@
         price: 1.00,
         unit: "6 unidades x $1.00",
         badge: "",
+        available: true,
         image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -349,6 +484,7 @@
         price: 1.00,
         unit: "6 unidades x $1.00",
         badge: "",
+        available: true,
         image: "https://images.unsplash.com/photo-1588252303782-cb80119abd6d?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -358,6 +494,7 @@
         price: 1.00,
         unit: "2 redes x $1.00",
         badge: "Oferta diaria",
+        available: true,
         image: "https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -367,6 +504,7 @@
         price: 1.75,
         unit: "$1.75 c/u",
         badge: "Fresco hoy",
+        available: true,
         image: "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -376,6 +514,7 @@
         price: 1.00,
         unit: "2 unidades x $1.00",
         badge: "Al punto",
+        available: true,
         image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -385,6 +524,7 @@
         price: 1.00,
         unit: "8 unidades x $1.00",
         badge: "Jugoso",
+        available: true,
         image: "https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -394,6 +534,7 @@
         price: 1.50,
         unit: "1 libra x $1.50",
         badge: "Fresco hoy",
+        available: true,
         image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -403,6 +544,7 @@
         price: 0.75,
         unit: "0.75 c/u ($3.00 la bandeja)",
         badge: "Tierno",
+        available: true,
         image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -412,6 +554,7 @@
         price: 1.00,
         unit: "4 unidades x $1.00",
         badge: "Económico",
+        available: true,
         image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -421,6 +564,7 @@
         price: 1.00,
         unit: "4 unidades x $1.00",
         badge: "Fresco hoy",
+        available: true,
         image: "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -430,6 +574,7 @@
         price: 0.25,
         unit: "3 x $0.25",
         badge: "Recién cortado",
+        available: true,
         image: "https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=600&q=80"
       },
       {
@@ -439,20 +584,49 @@
         price: 1.00,
         unit: "3 unidades x $1.00",
         badge: "Fresco hoy",
+        available: true,
         image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=600&q=80"
       }
     ];
 
+    function loadInventory() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed.map(item => ({
+              ...item,
+              available: item.available !== false
+            }));
+          }
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+    }
+
+    function saveInventory() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(PRODUCTS));
+      } catch (e) {}
+    }
+
+    let PRODUCTS = loadInventory();
     let currentCategory = "todos";
     let cart = [];
+    let isAdminAuthenticated = false;
+
+    function getAvailableProducts() {
+      return PRODUCTS.filter(p => p.available !== false);
+    }
 
     function renderCategoryFilters() {
       const container = document.getElementById("categoryFilters");
       if (!container) return;
 
-      const totalCount = PRODUCTS.length;
+      const availableCount = getAvailableProducts().length;
       const categories = [
-        { id: "todos", label: `Todos (${totalCount})` },
+        { id: "todos", label: `Todos (${availableCount})` },
         { id: "verduras", label: "🥬 Verduras" },
         { id: "frutas", label: "🥑 Frutas" }
       ];
@@ -553,7 +727,7 @@
 
       clearBtn.classList.toggle("hidden", search.length === 0);
 
-      const filtered = PRODUCTS.filter(p => {
+      const filtered = getAvailableProducts().filter(p => {
         const matchesCat = currentCategory === "todos" || p.category === currentCategory;
         const matchesSearch = p.name.toLowerCase().includes(search) || p.unit.toLowerCase().includes(search);
         return matchesCat && matchesSearch;
@@ -587,7 +761,7 @@
               </div>
 
               <div class="pt-3 border-t border-stone-100 flex items-center justify-between gap-3">
-                <span class="text-2xl font-extrabold text-emerald-700">$${product.price.toFixed(2)}</span>
+                <span class="text-2xl font-extrabold text-emerald-700">$${Number(product.price).toFixed(2)}</span>
 
                 ${qty === 0 ? `
                   <button
@@ -619,7 +793,7 @@
     }
 
     function addToCart(productId) {
-      const product = PRODUCTS.find(p => p.id === productId);
+      const product = getAvailableProducts().find(p => p.id === productId);
       if (!product) return;
 
       const existing = cart.find(item => item.id === productId);
@@ -723,6 +897,214 @@
 
       const url = `https://wa.me/${WHATSAPP_ORDERS}?text=${encodeURIComponent(message)}`;
       window.open(url, "_blank");
+    }
+
+    // Funciones del Panel Privado de Inventario
+    function openAdminModal() {
+      const modal = document.getElementById("adminModal");
+      const loginView = document.getElementById("adminLoginView");
+      const dashView = document.getElementById("adminDashboardView");
+      const errEl = document.getElementById("adminAuthError");
+      const passInput = document.getElementById("adminPasswordInput");
+
+      modal.classList.remove("hidden");
+      errEl.classList.add("hidden");
+
+      if (isAdminAuthenticated) {
+        loginView.classList.add("hidden");
+        dashView.classList.remove("hidden");
+        renderAdminProducts();
+      } else {
+        loginView.classList.remove("hidden");
+        dashView.classList.add("hidden");
+        passInput.value = "";
+        setTimeout(() => passInput.focus(), 100);
+      }
+    }
+
+    function closeAdminModal() {
+      document.getElementById("adminModal").classList.add("hidden");
+    }
+
+    function verifyAdminPassword() {
+      const passInput = document.getElementById("adminPasswordInput");
+      const errEl = document.getElementById("adminAuthError");
+
+      if (passInput.value === ADMIN_PASSCODE) {
+        isAdminAuthenticated = true;
+        errEl.classList.add("hidden");
+        document.getElementById("adminLoginView").classList.add("hidden");
+        document.getElementById("adminDashboardView").classList.remove("hidden");
+        renderAdminProducts();
+      } else {
+        errEl.classList.remove("hidden");
+      }
+    }
+
+    function renderAdminProducts() {
+      const container = document.getElementById("adminProductsList");
+      if (!container) return;
+
+      container.innerHTML = PRODUCTS.map(prod => `
+        <div class="bg-stone-50 border border-stone-200 rounded-2xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1">
+            <input
+              type="text"
+              value="${prod.name.replace(/"/g, """)}"
+              onchange="updateInventoryField(${prod.id}, 'name', this.value)"
+              class="px-3 py-2 bg-white border border-stone-300 rounded-xl text-sm font-bold"
+              placeholder="Nombre"
+            />
+            <input
+              type="text"
+              value="${prod.unit.replace(/"/g, """)}"
+              onchange="updateInventoryField(${prod.id}, 'unit', this.value)"
+              class="px-3 py-2 bg-white border border-stone-300 rounded-xl text-sm font-medium"
+              placeholder="Presentación"
+            />
+            <input
+              type="number"
+              step="0.01"
+              min="0.05"
+              value="${Number(prod.price).toFixed(2)}"
+              onchange="updateInventoryField(${prod.id}, 'price', this.value)"
+              class="px-3 py-2 bg-white border border-stone-300 rounded-xl text-sm font-extrabold text-emerald-800"
+              placeholder="Precio USD"
+            />
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0">
+            <button
+              onclick="toggleProductAvailability(${prod.id})"
+              class="px-3.5 py-2 rounded-xl text-xs font-extrabold transition ${prod.available !== false ? "bg-emerald-100 text-emerald-900 border border-emerald-300" : "bg-red-100 text-red-800 border border-red-300"}"
+            >
+              ${prod.available !== false ? "🟢 Disponible" : "🔴 Agotado"}
+            </button>
+            <button
+              onclick="deleteInventoryProduct(${prod.id})"
+              title="Eliminar producto"
+              class="px-3 py-2 rounded-xl text-xs font-extrabold bg-white hover:bg-red-50 text-red-600 border border-stone-300 transition"
+            >
+              🗑️
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function updateInventoryField(id, field, value) {
+      const item = PRODUCTS.find(p => p.id === id);
+      if (!item) return;
+
+      if (field === "price") {
+        const parsed = parseFloat(value);
+        item.price = isNaN(parsed) || parsed <= 0 ? item.price : parsed;
+      } else {
+        item[field] = value.trim();
+      }
+
+      saveInventory();
+      syncCartWithInventory();
+      renderCategoryFilters();
+      renderProducts();
+      updateCartUI();
+    }
+
+    function toggleProductAvailability(id) {
+      const item = PRODUCTS.find(p => p.id === id);
+      if (!item) return;
+
+      item.available = item.available === false ? true : false;
+      if (!item.available) {
+        cart = cart.filter(c => c.id !== id);
+      }
+
+      saveInventory();
+      renderAdminProducts();
+      renderCategoryFilters();
+      renderProducts();
+      updateCartUI();
+    }
+
+    function deleteInventoryProduct(id) {
+      PRODUCTS = PRODUCTS.filter(p => p.id !== id);
+      cart = cart.filter(c => c.id !== id);
+      saveInventory();
+      renderAdminProducts();
+      renderCategoryFilters();
+      renderProducts();
+      updateCartUI();
+    }
+
+    function addNewInventoryProduct(event) {
+      event.preventDefault();
+      const nameEl = document.getElementById("newProdName");
+      const catEl = document.getElementById("newProdCategory");
+      const priceEl = document.getElementById("newProdPrice");
+      const unitEl = document.getElementById("newProdUnit");
+
+      const name = nameEl.value.trim();
+      const category = catEl.value;
+      const price = parseFloat(priceEl.value);
+      const unit = unitEl.value.trim();
+
+      if (!name || isNaN(price) || price <= 0 || !unit) return;
+
+      const nextId = PRODUCTS.reduce((max, p) => Math.max(max, p.id), 0) + 1;
+      const defaultImage = category === "frutas"
+        ? "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80"
+        : "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80";
+
+      PRODUCTS.push({
+        id: nextId,
+        name,
+        category,
+        price,
+        unit,
+        badge: "Nuevo ingreso",
+        available: true,
+        image: defaultImage
+      });
+
+      nameEl.value = "";
+      priceEl.value = "";
+      unitEl.value = "";
+
+      saveInventory();
+      renderAdminProducts();
+      renderCategoryFilters();
+      renderProducts();
+    }
+
+    function syncCartWithInventory() {
+      cart = cart
+        .map(c => {
+          const updated = PRODUCTS.find(p => p.id === c.id && p.available !== false);
+          if (!updated) return null;
+          return { ...updated, qty: c.qty };
+        })
+        .filter(Boolean);
+    }
+
+    function resetDefaultProducts() {
+      if (!confirm("¿Restaurar la lista base de 17 productos?")) return;
+      PRODUCTS = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+      cart = [];
+      saveInventory();
+      renderAdminProducts();
+      renderCategoryFilters();
+      renderProducts();
+      updateCartUI();
+    }
+
+    function copyProductsCode() {
+      const cleanList = PRODUCTS.map(({ available, ...rest }) => rest);
+      const snippet = `const DEFAULT_PRODUCTS = ${JSON.stringify(cleanList, null, 2)};`;
+      navigator.clipboard.writeText(snippet).then(() => {
+        alert("Código copiado. Puedes pegarlo en DEFAULT_PRODUCTS dentro de index.html y hacer git push.");
+      }).catch(() => {
+        prompt("Copia este bloque de código:", snippet);
+      });
     }
 
     renderCategoryFilters();
