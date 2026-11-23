@@ -103,16 +103,8 @@
     </div>
 
     <!-- Filtros Grandes -->
-    <div class="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-3 mb-5">
-      <button onclick="setCategory('todos')" data-cat="todos" class="cat-btn active px-5 py-3 rounded-2xl text-base font-extrabold bg-emerald-700 text-white shadow-xs transition shrink-0">
-        Todos (10)
-      </button>
-      <button onclick="setCategory('verduras')" data-cat="verduras" class="cat-btn px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0">
-        🥬 Verduras
-      </button>
-      <button onclick="setCategory('frutas')" data-cat="frutas" class="cat-btn px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0">
-        🥑 Frutas
-      </button>
+    <div id="categoryFilters" class="flex items-center gap-2.5 overflow-x-auto no-scrollbar pb-3 mb-5">
+      <!-- Renderizado dinámico -->
     </div>
 
     <!-- Cuadrícula de Productos -->
@@ -298,19 +290,19 @@
     const PRODUCTS = [
       {
         id: 1,
-        name: "Tomate de Ensalada",
+        name: "Tomate (12 x $1)",
         category: "verduras",
         price: 1.00,
-        unit: "10 a 12 unidades x $1.00",
+        unit: "12 unidades x $1.00",
         badge: "Fresco hoy",
         image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80"
       },
       {
         id: 2,
-        name: "Tomate para Salsa",
+        name: "Tomate (10 x $1)",
         category: "verduras",
         price: 1.00,
-        unit: "12 unidades x $1.00",
+        unit: "10 unidades x $1.00",
         badge: "Oferta diaria",
         image: "https://images.unsplash.com/photo-1518977822534-7049a61ee0c2?auto=format&fit=crop&w=600&q=80"
       },
@@ -328,27 +320,27 @@
         name: "Cebolla Morada",
         category: "verduras",
         price: 1.00,
-        unit: "10 unidades x $1.00",
+        unit: "4 unidades x $1.00",
         badge: "Ideal ensaladas",
         image: "https://images.unsplash.com/photo-1508747703725-719777637510?auto=format&fit=crop&w=600&q=80"
       },
       {
         id: 5,
-        name: "Güisquil (4 x $1.00)",
-        category: "verduras",
+        name: "Plátano",
+        category: "frutas",
         price: 1.00,
-        unit: "4 unidades x $1.00",
-        badge: "Económico",
-        image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80"
+        unit: "3 unidades x $1.00",
+        badge: "Fresco hoy",
+        image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80"
       },
       {
         id: 6,
-        name: "Güisquil Grande (3 x $1.00)",
+        name: "Chile Verde",
         category: "verduras",
         price: 1.00,
-        unit: "3 unidades grandes x $1.00",
-        badge: "Seleccionado",
-        image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80"
+        unit: "6 unidades x $1.00",
+        badge: "",
+        image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=600&q=80"
       },
       {
         id: 7,
@@ -361,35 +353,123 @@
       },
       {
         id: 8,
+        name: "Ajo",
+        category: "verduras",
+        price: 1.00,
+        unit: "2 redes x $1.00",
+        badge: "Oferta diaria",
+        image: "https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 9,
+        name: "Lechuga",
+        category: "verduras",
+        price: 1.75,
+        unit: "$1.75 c/u",
+        badge: "Fresco hoy",
+        image: "https://images.unsplash.com/photo-1622206151226-18ca2c9ab4a1?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 10,
         name: "Aguacate",
         category: "frutas",
-        price: 0.50,
-        unit: "Precio por unidad ($0.50 c/u)",
+        price: 1.00,
+        unit: "2 unidades x $1.00",
         badge: "Al punto",
         image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80"
       },
       {
-        id: 9,
+        id: 11,
+        name: "Limón",
+        category: "frutas",
+        price: 1.00,
+        unit: "8 unidades x $1.00",
+        badge: "Jugoso",
+        image: "https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 12,
+        name: "Papa",
+        category: "verduras",
+        price: 1.50,
+        unit: "1 libra x $1.50",
+        badge: "Fresco hoy",
+        image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 13,
+        name: "Elote",
+        category: "verduras",
+        price: 0.75,
+        unit: "0.75 c/u ($3.00 la bandeja)",
+        badge: "Tierno",
+        image: "https://images.unsplash.com/photo-1551754655-cd27e38d2076?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 14,
+        name: "Güisquil",
+        category: "verduras",
+        price: 1.00,
+        unit: "4 unidades x $1.00",
+        badge: "Económico",
+        image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 15,
+        name: "Pepino",
+        category: "verduras",
+        price: 1.00,
+        unit: "4 unidades x $1.00",
+        badge: "Fresco hoy",
+        image: "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80"
+      },
+      {
+        id: 16,
         name: "Rábano",
         category: "verduras",
-        price: 0.50,
-        unit: "1 manojo fresco ($0.50)",
+        price: 0.25,
+        unit: "3 x $0.25",
         badge: "Recién cortado",
         image: "https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=600&q=80"
       },
       {
-        id: 10,
-        name: "Pepino",
+        id: 17,
+        name: "Zanahoria",
         category: "verduras",
         price: 1.00,
-        unit: "3 a 4 unidades x $1.00",
+        unit: "3 unidades x $1.00",
         badge: "Fresco hoy",
-        image: "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80"
+        image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=600&q=80"
       }
     ];
 
     let currentCategory = "todos";
     let cart = [];
+
+    function renderCategoryFilters() {
+      const container = document.getElementById("categoryFilters");
+      if (!container) return;
+
+      const totalCount = PRODUCTS.length;
+      const categories = [
+        { id: "todos", label: `Todos (${totalCount})` },
+        { id: "verduras", label: "🥬 Verduras" },
+        { id: "frutas", label: "🥑 Frutas" }
+      ];
+
+      container.innerHTML = categories.map(cat => {
+        const isActive = currentCategory === cat.id;
+        return `
+          <button
+            onclick="setCategory('${cat.id}')"
+            data-cat="${cat.id}"
+            class="cat-btn ${isActive ? "active px-5 py-3 rounded-2xl text-base font-extrabold bg-emerald-700 text-white shadow-xs transition shrink-0" : "px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0"}"
+          >
+            ${cat.label}
+          </button>
+        `;
+      }).join("");
+    }
 
     function initManciaMap() {
       const mapEl = document.getElementById("manciaMap");
@@ -450,13 +530,7 @@
 
     function setCategory(cat) {
       currentCategory = cat;
-      document.querySelectorAll(".cat-btn").forEach(btn => {
-        if (btn.dataset.cat === cat) {
-          btn.className = "cat-btn active px-5 py-3 rounded-2xl text-base font-extrabold bg-emerald-700 text-white shadow-xs transition shrink-0";
-        } else {
-          btn.className = "cat-btn px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0";
-        }
-      });
+      renderCategoryFilters();
       renderProducts();
     }
 
@@ -651,6 +725,7 @@
       window.open(url, "_blank");
     }
 
+    renderCategoryFilters();
     initManciaMap();
     updateOpenStatus();
     renderProducts();
