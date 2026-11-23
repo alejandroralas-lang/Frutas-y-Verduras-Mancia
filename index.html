@@ -30,8 +30,8 @@
             Frutas y Verduras Mancía
           </h1>
           <div class="flex flex-wrap items-center gap-1.5 mt-0.5">
-            <span id="openStatusBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-200 text-stone-700">
-              Consultando horario...
+            <span id="openStatusBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900">
+              🟢 L–V: 6AM–3PM / 5:30PM–9:30PM • S–D: 6AM–6PM
             </span>
           </div>
         </div>
@@ -39,8 +39,9 @@
 
       <div class="flex items-center gap-2 shrink-0">
         <button
+          type="button"
           onclick="openAdminModal()"
-          class="inline-flex items-center gap-1 bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs sm:text-sm px-3 py-2.5 rounded-xl transition"
+          class="inline-flex items-center gap-1 bg-stone-900 hover:bg-stone-800 text-amber-300 font-bold text-xs sm:text-sm px-3 py-2.5 rounded-xl transition cursor-pointer"
           title="Panel de Inventario"
         >
           <span>⚙️</span>
@@ -106,7 +107,7 @@
           class="w-full pl-11 pr-10 py-3.5 bg-white border-2 border-stone-300 rounded-2xl text-base font-medium focus:outline-none focus:border-emerald-600"
         />
         <span class="absolute left-3.5 top-3.5 text-xl">🔍</span>
-        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-3 text-stone-400 hover:text-stone-700 font-bold text-lg px-1.5">
+        <button type="button" id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-3 top-3 text-stone-400 hover:text-stone-700 font-bold text-lg px-1.5">
           ✕
         </button>
       </div>
@@ -204,7 +205,11 @@
 
       <!-- Mapa interactivo centrado exclusivamente en Frutas Y Verduras Mancía -->
       <div class="lg:col-span-7">
-        <div id="manciaMap" class="w-full h-80 sm:h-96 rounded-3xl overflow-hidden border-2 border-stone-200 shadow-xs bg-stone-100 z-10"></div>
+        <div id="manciaMap" class="w-full h-80 sm:h-96 rounded-3xl overflow-hidden border-2 border-stone-200 shadow-xs bg-stone-100 z-10 flex items-center justify-center">
+          <a href="https://maps.app.goo.gl/RDKCMag1Td8bKi8t6" target="_blank" rel="noopener noreferrer" class="text-emerald-800 font-extrabold underline">
+            Ver ubicación en Google Maps (13.7173809, -89.1497671)
+          </a>
+        </div>
       </div>
     </div>
   </section>
@@ -217,8 +222,9 @@
         <p class="text-stone-400">Retiro en local • Soyapango, El Salvador</p>
       </div>
       <button
+        type="button"
         onclick="openAdminModal()"
-        class="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition"
+        class="inline-flex items-center gap-2 bg-stone-800 hover:bg-stone-700 text-stone-200 border border-stone-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl transition cursor-pointer"
       >
         <span>🔐 Inventario (Dueño / Admin)</span>
       </button>
@@ -233,6 +239,7 @@
         <p class="text-xl sm:text-2xl font-extrabold text-white">Total: <span id="stickyTotalAmount" class="text-amber-300">$0.00</span></p>
       </div>
       <button
+        type="button"
         onclick="toggleCart(true)"
         class="bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-base sm:text-lg px-5 sm:px-7 py-3.5 rounded-2xl shadow-lg transition active:scale-95 flex items-center gap-2"
       >
@@ -251,7 +258,7 @@
           <h4 class="font-extrabold text-xl">Tu Lista para Retiro</h4>
           <p class="text-xs sm:text-sm text-emerald-100">Retiro en Frutas Y Verduras Mancía</p>
         </div>
-        <button onclick="toggleCart(false)" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 font-extrabold text-sm">
+        <button type="button" onclick="toggleCart(false)" class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 font-extrabold text-sm">
           ✕ Cerrar
         </button>
       </div>
@@ -300,6 +307,7 @@
         </div>
 
         <button
+          type="button"
           onclick="sendWhatsAppOrder()"
           class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg py-4 px-5 rounded-2xl shadow-lg transition active:scale-98 flex items-center justify-center gap-2"
         >
@@ -320,7 +328,7 @@
             <h4 class="text-lg sm:text-xl font-extrabold">Panel de Inventario Digital</h4>
             <p class="text-xs sm:text-sm text-stone-300">Control rápido de disponibilidad, precios y nuevos ingresos</p>
           </div>
-          <button onclick="closeAdminModal()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-sm">
+          <button type="button" onclick="closeAdminModal()" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-sm">
             ✕ Cerrar
           </button>
         </div>
@@ -341,8 +349,9 @@
           />
           <p id="adminAuthError" class="hidden text-xs font-bold text-red-600">Contraseña incorrecta. Intenta de nuevo.</p>
           <button
+            type="button"
             onclick="verifyAdminPassword()"
-            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base py-3.5 px-5 rounded-2xl transition"
+            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base py-3.5 px-5 rounded-2xl transition cursor-pointer"
           >
             Entrar al Inventario
           </button>
@@ -357,12 +366,14 @@
             </div>
             <div class="flex flex-wrap items-center gap-2">
               <button
+                type="button"
                 onclick="copyProductsCode()"
                 class="bg-amber-400 hover:bg-amber-300 text-stone-950 font-extrabold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition"
               >
                 📋 Copiar Código para GitHub
               </button>
               <button
+                type="button"
                 onclick="resetDefaultProducts()"
                 class="bg-white hover:bg-red-50 text-red-700 border border-red-200 font-bold text-xs sm:text-sm px-3.5 py-2 rounded-xl transition"
               >
@@ -424,7 +435,7 @@
     const WHATSAPP_ORDERS = "50368271549";
     const WHATSAPP_WHOLESALE = "50379698478";
     const ADMIN_PASSCODE = "mancia2026";
-    const STORAGE_KEY = "mancia_inventory_v3";
+    const STORAGE_KEY = "mancia_inventory_v4";
 
     const DEFAULT_PRODUCTS = [
       {
@@ -645,6 +656,7 @@
         const isActive = currentCategory === cat.id;
         return `
           <button
+            type="button"
             onclick="setCategory('${cat.id}')"
             data-cat="${cat.id}"
             class="cat-btn ${isActive ? "active px-5 py-3 rounded-2xl text-base font-extrabold bg-emerald-700 text-white shadow-xs transition shrink-0" : "px-5 py-3 rounded-2xl text-base font-bold bg-white text-stone-800 border-2 border-stone-200 hover:bg-stone-50 transition shrink-0"}"
@@ -656,60 +668,67 @@
     }
 
     function initManciaMap() {
-      const mapEl = document.getElementById("manciaMap");
-      if (!mapEl || typeof L === "undefined") return;
+      try {
+        const mapEl = document.getElementById("manciaMap");
+        if (!mapEl || typeof L === "undefined") return;
 
-      const lat = 13.7173809;
-      const lng = -89.1497671;
+        const lat = 13.7173809;
+        const lng = -89.1497671;
 
-      const map = L.map("manciaMap").setView([lat, lng], 18);
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "© OpenStreetMap"
-      }).addTo(map);
+        mapEl.innerHTML = "";
+        const map = L.map("manciaMap").setView([lat, lng], 18);
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution: "&copy; OpenStreetMap"
+        }).addTo(map);
 
-      L.marker([lat, lng])
-        .addTo(map)
-        .bindPopup("<strong>Frutas Y Verduras Mancía</strong><br>Retiro en local • Soyapango")
-        .openPopup();
+        L.marker([lat, lng])
+          .addTo(map)
+          .bindPopup("<strong>Frutas Y Verduras Mancía</strong><br>Retiro en local • Soyapango")
+          .openPopup();
+      } catch (e) {}
     }
 
     function updateOpenStatus() {
-      const badge = document.getElementById("openStatusBadge");
-      if (!badge) return;
+      try {
+        const badge = document.getElementById("openStatusBadge");
+        if (!badge) return;
 
-      const nowSV = new Date(new Date().toLocaleString("en-US", { timeZone: "America/El_Salvador" }));
-      const day = nowSV.getDay();
-      const minutes = nowSV.getHours() * 60 + nowSV.getMinutes();
+        const nowUtc = new Date();
+        const svOffsetMinutes = -6 * 60;
+        const svDate = new Date(nowUtc.getTime() + svOffsetMinutes * 60000);
+        const day = svDate.getUTCDay();
+        const minutes = svDate.getUTCHours() * 60 + svDate.getUTCMinutes();
 
-      let isOpen = false;
-      let label = "";
+        let isOpen = false;
+        let label = "";
 
-      if (day >= 1 && day <= 5) {
-        if (minutes >= 360 && minutes < 900) {
-          isOpen = true;
-          label = "🟢 Abierto ahora • Cierra 3:00 PM";
-        } else if (minutes >= 1050 && minutes < 1290) {
-          isOpen = true;
-          label = "🟢 Abierto ahora • Cierra 9:30 PM";
-        } else if (minutes >= 900 && minutes < 1050) {
-          label = "🟠 Reabre a las 5:30 PM";
+        if (day >= 1 && day <= 5) {
+          if (minutes >= 360 && minutes < 900) {
+            isOpen = true;
+            label = "🟢 Abierto ahora • Cierra 3:00 PM";
+          } else if (minutes >= 1050 && minutes < 1290) {
+            isOpen = true;
+            label = "🟢 Abierto ahora • Cierra 9:30 PM";
+          } else if (minutes >= 900 && minutes < 1050) {
+            label = "🟠 Reabre a las 5:30 PM";
+          } else {
+            label = "🔴 Cerrado • Abre 6:00 AM";
+          }
         } else {
-          label = "🔴 Cerrado • Abre 6:00 AM";
+          if (minutes >= 360 && minutes < 1080) {
+            isOpen = true;
+            label = "🟢 Abierto ahora • Cierra 6:00 PM";
+          } else {
+            label = "🔴 Cerrado • Abre 6:00 AM";
+          }
         }
-      } else {
-        if (minutes >= 360 && minutes < 1080) {
-          isOpen = true;
-          label = "🟢 Abierto ahora • Cierra 6:00 PM";
-        } else {
-          label = "🔴 Cerrado • Abre 6:00 AM";
-        }
-      }
 
-      badge.textContent = label;
-      badge.className = isOpen
-        ? "text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900"
-        : "text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-200 text-stone-800";
+        badge.textContent = label;
+        badge.className = isOpen
+          ? "text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-900"
+          : "text-xs font-bold px-2.5 py-0.5 rounded-full bg-stone-200 text-stone-800";
+      } catch (e) {}
     }
 
     function setCategory(cat) {
@@ -733,9 +752,11 @@
       const grid = document.getElementById("productsGrid");
       const searchInput = document.getElementById("searchInput");
       const clearBtn = document.getElementById("clearSearchBtn");
-      const search = searchInput.value.toLowerCase().trim();
+      const search = searchInput ? searchInput.value.toLowerCase().trim() : "";
 
-      clearBtn.classList.toggle("hidden", search.length === 0);
+      if (clearBtn) {
+        clearBtn.classList.toggle("hidden", search.length === 0);
+      }
 
       const filtered = getAvailableProducts().filter(p => {
         const matchesCat = currentCategory === "todos" || p.category === currentCategory;
@@ -747,7 +768,7 @@
         grid.innerHTML = `
           <div class="col-span-full text-center py-12 bg-white rounded-3xl border-2 border-stone-200 space-y-3">
             <p class="text-lg text-stone-700 font-bold">No encontramos "${search}".</p>
-            <button onclick="clearSearch()" class="bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl">
+            <button type="button" onclick="clearSearch()" class="bg-emerald-600 text-white font-bold px-5 py-2.5 rounded-xl">
               Ver todos los productos
             </button>
           </div>
@@ -775,6 +796,7 @@
 
                 ${qty === 0 ? `
                   <button
+                    type="button"
                     onclick="addToCart(${product.id})"
                     class="bg-emerald-600 hover:bg-emerald-700 text-white text-base font-extrabold px-5 py-3 rounded-2xl shadow-xs transition active:scale-95"
                   >
@@ -783,12 +805,14 @@
                 ` : `
                   <div class="flex items-center gap-2 bg-emerald-50 border-2 border-emerald-600 rounded-2xl p-1">
                     <button
+                      type="button"
                       onclick="changeQty(${product.id}, -1)"
                       aria-label="Quitar uno"
                       class="w-11 h-11 rounded-xl bg-white text-stone-900 font-extrabold text-xl shadow-xs hover:bg-stone-100 active:scale-95"
                     >−</button>
                     <span class="w-8 text-center font-extrabold text-lg text-emerald-950">${qty}</span>
                     <button
+                      type="button"
                       onclick="changeQty(${product.id}, 1)"
                       aria-label="Agregar otro"
                       class="w-11 h-11 rounded-xl bg-emerald-600 text-white font-extrabold text-xl shadow-xs hover:bg-emerald-700 active:scale-95"
@@ -867,9 +891,9 @@
             <p class="text-base font-extrabold text-emerald-700 mt-0.5">$${(item.price * item.qty).toFixed(2)}</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
-            <button onclick="changeQty(${item.id}, -1)" class="w-10 h-10 rounded-xl bg-white border-2 border-stone-300 font-extrabold text-lg text-stone-800">−</button>
+            <button type="button" onclick="changeQty(${item.id}, -1)" class="w-10 h-10 rounded-xl bg-white border-2 border-stone-300 font-extrabold text-lg text-stone-800">−</button>
             <span class="text-base font-extrabold w-6 text-center">${item.qty}</span>
-            <button onclick="changeQty(${item.id}, 1)" class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-extrabold text-lg">+</button>
+            <button type="button" onclick="changeQty(${item.id}, 1)" class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-extrabold text-lg">+</button>
           </div>
         </div>
       `).join("");
@@ -916,8 +940,9 @@
       const errEl = document.getElementById("adminAuthError");
       const passInput = document.getElementById("adminPasswordInput");
 
+      if (!modal) return;
       modal.classList.remove("hidden");
-      errEl.classList.add("hidden");
+      if (errEl) errEl.classList.add("hidden");
 
       if (isAdminAuthenticated) {
         loginView.classList.add("hidden");
@@ -926,26 +951,29 @@
       } else {
         loginView.classList.remove("hidden");
         dashView.classList.add("hidden");
-        passInput.value = "";
-        setTimeout(() => passInput.focus(), 100);
+        if (passInput) {
+          passInput.value = "";
+          setTimeout(() => passInput.focus(), 100);
+        }
       }
     }
 
     function closeAdminModal() {
-      document.getElementById("adminModal").classList.add("hidden");
+      const modal = document.getElementById("adminModal");
+      if (modal) modal.classList.add("hidden");
     }
 
     function verifyAdminPassword() {
       const passInput = document.getElementById("adminPasswordInput");
       const errEl = document.getElementById("adminAuthError");
 
-      if (passInput.value === ADMIN_PASSCODE) {
+      if (passInput && passInput.value.trim() === ADMIN_PASSCODE) {
         isAdminAuthenticated = true;
-        errEl.classList.add("hidden");
+        if (errEl) errEl.classList.add("hidden");
         document.getElementById("adminLoginView").classList.add("hidden");
         document.getElementById("adminDashboardView").classList.remove("hidden");
         renderAdminProducts();
-      } else {
+      } else if (errEl) {
         errEl.classList.remove("hidden");
       }
     }
@@ -959,14 +987,14 @@
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 flex-1">
             <input
               type="text"
-              value="${prod.name.replace(/"/g, """)}"
+              value="${prod.name.replace(/"/g, "&quot;")}"
               onchange="updateInventoryField(${prod.id}, 'name', this.value)"
               class="px-3 py-2 bg-white border border-stone-300 rounded-xl text-sm font-bold"
               placeholder="Nombre"
             />
             <input
               type="text"
-              value="${prod.unit.replace(/"/g, """)}"
+              value="${prod.unit.replace(/"/g, "&quot;")}"
               onchange="updateInventoryField(${prod.id}, 'unit', this.value)"
               class="px-3 py-2 bg-white border border-stone-300 rounded-xl text-sm font-medium"
               placeholder="Presentación"
@@ -984,12 +1012,14 @@
 
           <div class="flex items-center gap-2 shrink-0">
             <button
+              type="button"
               onclick="toggleProductAvailability(${prod.id})"
               class="px-3.5 py-2 rounded-xl text-xs font-extrabold transition ${prod.available !== false ? "bg-emerald-100 text-emerald-900 border border-emerald-300" : "bg-red-100 text-red-800 border border-red-300"}"
             >
               ${prod.available !== false ? "🟢 Disponible" : "🔴 Agotado"}
             </button>
             <button
+              type="button"
               onclick="deleteInventoryProduct(${prod.id})"
               title="Eliminar producto"
               class="px-3 py-2 rounded-xl text-xs font-extrabold bg-white hover:bg-red-50 text-red-600 border border-stone-300 transition"
@@ -1117,10 +1147,10 @@
     }
 
     renderCategoryFilters();
-    initManciaMap();
-    updateOpenStatus();
     renderProducts();
     updateCartUI();
+    updateOpenStatus();
+    initManciaMap();
   </script>
 </body>
 </html>
