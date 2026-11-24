@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#14532d" />
+  <title>Control Total | Frutas y Verduras Mancía</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Librería SheetJS para generar archivos Excel (.xlsx) reales -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .bar-fill {
+      transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .card-lift {
+      transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+    .card-lift:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 24px -6px rgba(20, 83, 45, 0.12), 0 4px 10px -4px rgba(15, 23, 42, 0.06);
+    }
+  </style>
+</head>
+<body class="bg-[#f4f7f4] text-slate-900 antialiased pb-16">
+
+  <!-- ACCESO ÚNICO: ADMINISTRACIÓN -->
+  <div id="authScreen" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-[#0d3b22] via-[#14532d] to-[#0f172a]">
+    <div class="w-full max-w-sm bg-white rounded-3xl shadow-2xl border border-emerald-200 p-7 space-y-6">
+      <div class="space-y-1.5 border-b border-slate-100 pb-4">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-[#14532d] text-xs font-extrabold">
+          <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
+          Frutas y Verduras Mancía
+        </div>
+        <h1 class="text-2xl font-extrabold text-slate-900 pt-1">Control Total</h1>
+        <p class="text-xs text-slate-500">Soyapango, San Salvador • Caja, inventario valorizado, pagos semanales y cierre Excel.</p>
+      </div>
+
+      <form onsubmit="handleLogin(event)" class="space-y-4">
+        <div>
+          <label for="loginPass" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+            Clave de acceso
+          </label>
+          <input
+            type="password"
+            id="loginPass"
+            required
+            autocomplete="current-password"
+            placeholder="••••••••"
+            class="w-full px-4 py-3 rounded-2xl border-2 border-slate-200 bg-slate-50 text-slate-900 font-bold text-sm focus:outline-none focus:border-[#14532d] focus:bg-white transition"
+          />
+        </div>
+
+        <p id="loginError" class="hidden text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-2xl px-3.5 py-2.5">
+          Credencial no válida. Verifique e intente de nuevo.
+        </p>
+
+        <button
+          type="submit"
+          class="w-full py-3.5 rounded-2xl bg-[#14532d] hover:bg-[#0f3f22] text-white font-extrabold text-sm tracking-wide shadow-lg shadow-emerald-950/20 transition cursor-pointer active:scale-[0.99]"
+        >
+          Entrar a Control Total
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- PANEL PRINCIPAL -->
+  <div id="appScreen" class="hidden">
+    <!-- ENCABEZADO -->
+    <header class="sticky top-0 z-30 bg-[#14532d] text-white border-b border-emerald-900 shadow-md">
+      <div class="max-w-6xl mx-auto px-4 py-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="px-2.5 py-0.5 rounded-full bg-white/15 text-emerald-100 text-[11px] font-bold">
+              ● Frutas y Verduras Mancía
+            </span>
+            <h1 class="text-base sm:text-lg font-extrabold tracking-tight">Control Total de Operación</h1>
+          </div>
+          <p class="text-xs text-emerald-100/80 mt-0.5">Soyapango, San Salvador • Sincronizado en tiempo real con la tienda</p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-wrap">
+          <a
+            href="index.html"
+            class="px-3.5 py-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-extrabold text-xs shadow transition cursor-pointer"
+          >
+            🛒 Tienda
+          </a>
+          <button
+            type="button"
+            onclick="openModal('ventaModal')"
+            class="px-3.5 py-2 rounded-xl bg-[#ea780b] hover:bg-[#d46b06] text-white font-extrabold text-xs shadow transition cursor-pointer active:scale-95"
+          >
+            + Entrada / Venta
+          </button>
+          <button
+            type="button"
+            onclick="openModal('gastoModal')"
+            class="px-3.5 py-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-extrabold text-xs shadow transition cursor-pointer active:scale-95"
+          >
+            + Gasto / Salida
+          </button>
+          <button
+            type="button"
+            onclick="openModal('stockModal')"
+            class="px-3.5 py-2 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-extrabold text-xs shadow transition cursor-pointer active:scale-95"
+          >
+            + Producto / Stock
+          </button>
+          <button
+            type="button"
+            onclick="openModal('weeklyModal')"
+            class="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow transition cursor-pointer active:scale-95"
+          >
+            + Pago semanal
+          </button>
+          <button
+            type="button"
+            onclick="openCloseDayModal()"
+            class="px-3.5 py-2 rounded-xl bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-extrabold text-xs shadow transition cursor-pointer active:scale-95"
+          >
+            📊 Cierre Día (Excel + WhatsApp)
+          </button>
+          <button
+            type="button"
+            onclick="logout()"
+            class="px-3.5 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-900 text-emerald-100 font-bold text-xs transition cursor-pointer"
+          >
+            Salir
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 pt-5 space-y-6">
+
+      <!-- NOTIFICACIÓN -->
+      <div id="statusToast" class="hidden rounded-2xl px-4 py-3 text-xs font-bold border flex items-center justify-between gap-2"></div>
+
+      <!-- 1. INDICADORES EJECUTIVOS Y FLUJO DE CAJA -->
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+        <div class="card-lift bg-white rounded-3xl p-4 border border-emerald-200/90 border-t-4 border-t-[#14532d] shadow-xs">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#14532d]">Entradas acumuladas</p>
+          <p id="kpiIngresos" class="text-2xl font-extrabold text-[#14532d] mt-1">$0.00</p>
+          <p id="kpiPromedioDia" class="text-xs font-semibold text-slate-500 mt-1">Promedio diario: $0.00</p>
+        </div>
+
+        <div class="card-lift bg-white rounded-3xl p-4 border border-rose-200/90 border-t-4 border-t-rose-600 shadow-xs">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-rose-700">Salidas totales (gastos + pagos)</p>
+          <p id="kpiEgresos" class="text-2xl font-extrabold text-rose-600 mt-1">$0.00</p>
+          <p id="kpiDesgloseEgresos" class="text-xs font-semibold text-slate-500 mt-1">Diarios: $0.00 • Semanales: $0.00</p>
+        </div>
+
+        <div class="card-lift bg-white rounded-3xl p-4 border border-amber-200/90 border-t-4 border-t-[#ea780b] shadow-xs">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#b45309]">Balance neto acumulado</p>
+          <p id="kpiNeto" class="text-2xl font-extrabold text-slate-900 mt-1">$0.00</p>
+          <p id="kpiMargen" class="text-xs font-semibold text-slate-500 mt-1">Margen: 0.0%</p>
+        </div>
+
+        <div class="card-lift bg-white rounded-3xl p-4 border border-teal-200/90 border-t-4 border-t-teal-600 shadow-xs">
+          <p class="text-[11px] font-extrabold uppercase tracking-wider text-teal-800">Efectivo físico en caja</p>
+          <p id="kpiCajaActual" class="text-2xl font-extrabold text-teal-700 mt-1">$0.00</p>
+          <div class="flex items-center justify-between gap-2 mt-1">
+            <span id="kpiCajaHoy" class="text-[11px] font-semibold text-slate-500">Hoy: $0.00</span>
+            <button
+              type="button"
+              id="baseCashBtn"
+              onclick="editOpeningCash()"
+              class="text-xs font-extrabold text-[#14532d] hover:underline cursor-pointer"
+            >
+              Base inicial ($0.00)
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- DESGLOSE DE CAJA POR MÉTODO DE PAGO -->
+      <section class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+          <h2 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Dinero que entra y sale por método de pago (neto acumulado)</h2>
+          <span id="baseCashHeaderLabel" class="text-[11px] text-slate-500 font-semibold">Base inicial: $0.00</span>
+        </div>
+        <div id="methodBreakdown" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
+      </section>
+
+      <!-- 2. INVENTARIO Y EXISTENCIA DE PRODUCTOS VALORIZADO -->
+      <section class="bg-white rounded-3xl border border-teal-200/90 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Control de existencia y valor de mercadería (Inventario)</h2>
+            <p class="text-xs text-slate-500">Descuento automático en ventas (tienda y panel) y cálculo de valor en stock.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="inventoryTotalValueBadge" class="px-3 py-1.5 rounded-xl bg-teal-50 border border-teal-200 text-teal-900 text-xs font-extrabold">Valor en stock: $0.00</span>
+            <span id="stockAlertBadge" class="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-900 text-xs font-extrabold">0 alertas de stock</span>
+            <button
+              type="button"
+              onclick="openModal('stockModal')"
+              class="px-3.5 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-extrabold text-xs cursor-pointer transition"
+            >
+              + Nuevo / Actualizar
+            </button>
+          </div>
+        </div>
+
+        <div id="inventoryGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+      </section>
+
+      <!-- 3. PAGOS SEMANALES -->
+      <section class="bg-white rounded-3xl border border-amber-200/90 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Pagos semanales programados y registrados</h2>
+            <p class="text-xs text-slate-500">Alquiler, transporte semanal, ayuda/planilla u otros compromisos semanales. Al marcar <strong>Pagado</strong>, descuenta de caja.</p>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="weeklyTotalBadge" class="px-3 py-1.5 rounded-xl bg-amber-100 text-amber-950 text-xs font-extrabold">Total semanal: $0.00</span>
+            <button
+              type="button"
+              onclick="openModal('weeklyModal')"
+              class="px-3.5 py-1.5 rounded-xl bg-[#ea780b] hover:bg-[#d46b06] text-white font-extrabold text-xs cursor-pointer transition"
+            >
+              + Agregar pago semanal
+            </button>
+          </div>
+        </div>
+
+        <div id="weeklyPaymentsList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </section>
+
+      <!-- 4. EVOLUCIÓN DÍA POR DÍA -->
+      <section class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3.5">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Evolución diaria desde el Día 1</h2>
+            <p class="text-xs text-slate-500">Seleccione una jornada para revisar su desglose de productos, entradas y salidas.</p>
+          </div>
+          <button
+            type="button"
+            onclick="selectDay('ALL')"
+            class="px-3.5 py-1.5 rounded-xl bg-[#ea780b] hover:bg-[#d46b06] text-white font-extrabold text-xs shadow-xs cursor-pointer transition"
+          >
+            Ver todos los días
+          </button>
+        </div>
+
+        <div id="dailyTimeline" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+      </section>
+
+      <!-- 5. DESGLOSE DE PRODUCTOS VENDIDOS -->
+      <section class="bg-white rounded-3xl border border-slate-200/90 shadow-sm p-5 space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3.5">
+          <div>
+            <h2 id="productSectionTitle" class="text-base sm:text-lg font-extrabold text-slate-900">Desglose de ventas por producto — Todos los días</h2>
+            <p id="productSectionSubtitle" class="text-xs text-slate-500">Ordenado por monto vendido acumulado.</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <select
+              id="daySelector"
+              onchange="onDaySelectorChange()"
+              class="px-3 py-2 rounded-xl border-2 border-emerald-200 bg-emerald-50/60 text-xs font-extrabold text-[#14532d] focus:outline-none focus:border-[#14532d] cursor-pointer"
+            >
+              <option value="ALL">Todos los días</option>
+            </select>
+
+            <button
+              type="button"
+              id="sortToggleBtn"
+              onclick="toggleSort()"
+              class="px-3.5 py-2 rounded-xl border-2 border-amber-300 bg-amber-50 hover:bg-amber-100 text-xs font-extrabold text-amber-950 cursor-pointer transition"
+            >
+              Mayor a menor ↓
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div class="rounded-2xl bg-[#14532d] text-white p-4 shadow-xs">
+            <p class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-200">Mayor venta del periodo</p>
+            <p id="topProductText" class="text-base font-extrabold mt-1">—</p>
+          </div>
+          <div class="rounded-2xl bg-[#fff7ed] border border-amber-200 text-slate-900 p-4 shadow-xs">
+            <p class="text-[11px] font-extrabold uppercase tracking-wider text-[#ea780b]">Menor venta del periodo</p>
+            <p id="bottomProductText" class="text-base font-extrabold mt-1">—</p>
+          </div>
+        </div>
+
+        <div id="productBarsList" class="space-y-2.5 pt-1"></div>
+      </section>
+
+      <!-- 6. LIBRO DE MOVIMIENTOS: ENTRADAS Y GASTOS DIARIOS -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="bg-white rounded-3xl border border-emerald-200/80 shadow-sm p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="text-sm font-extrabold uppercase tracking-wider text-[#14532d]">Entradas / Ventas</h2>
+            <span id="salesCountBadge" class="px-2.5 py-1 rounded-full bg-emerald-100 text-[#14532d] text-xs font-extrabold">0 líneas</span>
+          </div>
+          <div id="salesLedger" class="max-h-96 overflow-y-auto divide-y divide-slate-100 text-xs pr-1"></div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-rose-200/80 shadow-sm p-5 space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h2 class="text-sm font-extrabold uppercase tracking-wider text-rose-700">Gastos diarios (Insumos / Mercadería)</h2>
+            <span id="expensesCountBadge" class="px-2.5 py-1 rounded-full bg-rose-100 text-rose-700 text-xs font-extrabold">0 gastos</span>
+          </div>
+          <div id="expensesLedger" class="max-h-96 overflow-y-auto divide-y divide-slate-100 text-xs pr-1"></div>
+        </div>
+      </section>
+
+      <!-- 7. RESPALDO Y EXPORTACIÓN -->
+      <footer class="bg-white rounded-3xl border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+        <span class="font-medium">Almacenamiento local sincronizado con index.html.</span>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onclick="openCloseDayModal()"
+            class="px-3.5 py-1.5 rounded-xl bg-[#14532d] hover:bg-[#0f3f22] text-white font-bold cursor-pointer transition"
+          >
+            📊 Exportar Excel del Día
+          </button>
+          <button
+            type="button"
+            onclick="copyBackup()"
+            class="px-3.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold cursor-pointer transition"
+          >
+            Copiar JSON
+          </button>
+          <button
+            type="button"
+            onclick="downloadBackup()"
+            class="px-3.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-[#14532d] font-bold cursor-pointer transition"
+          >
+            Descargar .json
+          </button>
+          <button
+            type="button"
+            onclick="document.getElementById('importFileInput').click()"
+            class="px-3.5 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 font-bold cursor-pointer transition"
+          >
+            Importar JSON
+          </button>
+          <input type="file" id="importFileInput" accept=".json,application/json" onchange="importBackup(event)" class="hidden" />
+          <button
+            type="button"
+            onclick="restoreSeed()"
+            class="px-3.5 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold cursor-pointer transition"
+          >
+            Restaurar datos base
+          </button>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- MODAL CIERRE DEL DÍA (EXCEL + WHATSAPP AL JEFE) -->
+  <div id="closeDayModal" class="fixed inset-0 z-50 hidden">
+    <div onclick="closeModal('closeDayModal')" class="absolute inset-0 bg-slate-950/60"></div>
+    <div class="relative min-h-screen flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 pointer-events-auto shadow-2xl border-2 border-emerald-500">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-base font-extrabold text-[#14532d]">📊 Cierre del Día y Envío al Jefe</h3>
+          <button type="button" onclick="closeModal('closeDayModal')" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs cursor-pointer">✕</button>
+        </div>
+
+        <div class="space-y-3">
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="closeReportDate" class="block text-xs font-bold text-slate-600 mb-1">Jornada a cerrar</label>
+              <input type="date" id="closeReportDate" onchange="updateCloseDayPreview()" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-bold focus:outline-none focus:border-[#14532d]" />
+            </div>
+            <div>
+              <label for="bossWhatsappInput" class="block text-xs font-bold text-slate-600 mb-1">WhatsApp del Jefe</label>
+              <input type="text" id="bossWhatsappInput" value="50379698478" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-extrabold focus:outline-none focus:border-[#14532d]" />
+            </div>
+          </div>
+
+          <div id="closeDayPreviewBox" class="rounded-2xl bg-emerald-50/70 border border-emerald-200 p-3.5 text-xs space-y-1.5 text-slate-800"></div>
+
+          <p class="text-[11px] text-slate-500 leading-relaxed">
+            Al pulsar el botón, se descargará automáticamente el archivo <strong>Excel (.xlsx)</strong> con 4 hojas (Resumen, Ventas, Gastos e Inventario) y se abrirá el WhatsApp del jefe con el cuadre del día listo para enviar y adjuntar el Excel.
+          </p>
+
+          <div class="grid grid-cols-1 gap-2.5 pt-1">
+            <button
+              type="button"
+              onclick="executeEndOfDayReport(true)"
+              class="w-full py-3.5 rounded-2xl bg-[#14532d] hover:bg-[#0f3f22] text-white font-extrabold text-sm shadow-lg cursor-pointer transition"
+            >
+              📥 Descargar Excel (.xlsx) y Enviar por WhatsApp
+            </button>
+            <button
+              type="button"
+              onclick="executeEndOfDayReport(false)"
+              class="w-full py-2.5 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs cursor-pointer transition"
+            >
+              Solo descargar archivo Excel (.xlsx)
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVA VENTA / ENTRADA -->
+  <div id="ventaModal" class="fixed inset-0 z-50 hidden">
+    <div onclick="closeModal('ventaModal')" class="absolute inset-0 bg-slate-950/60"></div>
+    <div class="relative min-h-screen flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 pointer-events-auto shadow-2xl border border-emerald-200">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-base font-extrabold text-[#14532d]">Registrar venta / entrada de dinero</h3>
+          <button type="button" onclick="closeModal('ventaModal')" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs cursor-pointer">✕</button>
+        </div>
+
+        <form onsubmit="addSale(event)" class="space-y-3">
+          <div>
+            <label for="saleProduct" class="block text-xs font-bold text-slate-600 mb-1">Producto o concepto</label>
+            <input type="text" id="saleProduct" list="productSuggestions" required placeholder="Ej. Tomate, Cebolla, Pepino, Aguacate" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold focus:outline-none focus:border-[#14532d]" />
+            <datalist id="productSuggestions"></datalist>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="saleAmount" class="block text-xs font-bold text-slate-600 mb-1">Monto ($)</label>
+              <input type="number" step="0.01" min="0.01" id="saleAmount" required placeholder="0.00" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-extrabold focus:outline-none focus:border-[#14532d]" />
+            </div>
+            <div>
+              <label for="saleQty" class="block text-xs font-bold text-slate-600 mb-1">Cantidad a descontar</label>
+              <input type="number" step="0.1" min="0" id="saleQty" value="1" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-bold focus:outline-none focus:border-[#14532d]" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label for="saleDate" class="block text-xs font-bold text-slate-600 mb-1">Fecha</label>
+              <input type="date" id="saleDate" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-[#14532d]" />
+            </div>
+            <div>
+              <label for="saleCategory" class="block text-xs font-bold text-slate-600 mb-1">Categoría</label>
+              <select id="saleCategory" class="w-full px-2.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                <option value="Verduras">Verduras</option>
+                <option value="Frutas">Frutas</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+            <div>
+              <label for="saleMethod" class="block text-xs font-bold text-slate-600 mb-1">Método</label>
+              <select id="saleMethod" class="w-full px-2.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-2xl bg-[#14532d] hover:bg-[#0f3f22] text-white font-extrabold text-sm shadow-md cursor-pointer">
+            Guardar entrada y actualizar stock
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL NUEVO GASTO DIARIO -->
+  <div id="gastoModal" class="fixed inset-0 z-50 hidden">
+    <div onclick="closeModal('gastoModal')" class="absolute inset-0 bg-slate-950/60"></div>
+    <div class="relative min-h-screen flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 pointer-events-auto shadow-2xl border border-rose-200">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-base font-extrabold text-rose-700">Registrar gasto diario / salida de caja</h3>
+          <button type="button" onclick="closeModal('gastoModal')" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs cursor-pointer">✕</button>
+        </div>
+
+        <form onsubmit="addExpense(event)" class="space-y-3">
+          <div>
+            <label for="expDesc" class="block text-xs font-bold text-slate-600 mb-1">Insumo, producto o detalle</label>
+            <input type="text" id="expDesc" required placeholder="Ej. Bolsas gabacha, Caja de tomate, Hielo" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold focus:outline-none focus:border-rose-600" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="expAmt" class="block text-xs font-bold text-slate-600 mb-1">Monto total ($)</label>
+              <input type="number" step="0.01" min="0.01" id="expAmt" required placeholder="0.00" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-extrabold focus:outline-none focus:border-rose-600" />
+            </div>
+            <div>
+              <label for="expDt" class="block text-xs font-bold text-slate-600 mb-1">Fecha</label>
+              <input type="date" id="expDt" required class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold focus:outline-none focus:border-rose-600" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="expType" class="block text-xs font-bold text-slate-600 mb-1">Tipo de gasto</label>
+              <select id="expType" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold">
+                <option value="Insumos">Insumos (bolsas, empaque, aseo)</option>
+                <option value="Mercadería">Mercadería (compra de frutas/verduras)</option>
+                <option value="Transporte">Transporte diario</option>
+                <option value="Operativo">Operativo diario</option>
+              </select>
+            </div>
+            <div>
+              <label for="expPay" class="block text-xs font-bold text-slate-600 mb-1">Método de pago</label>
+              <select id="expPay" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+            <div>
+              <label for="expStockProduct" class="block text-[11px] font-bold text-slate-600 mb-1">Sumar a existencia (opcional)</label>
+              <input type="text" id="expStockProduct" list="productSuggestions" placeholder="Ej. Tomate" class="w-full px-2.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-semibold" />
+            </div>
+            <div>
+              <label for="expStockQty" class="block text-[11px] font-bold text-slate-600 mb-1">Cantidad comprada</label>
+              <input type="number" step="0.1" min="0" id="expStockQty" value="0" class="w-full px-2.5 py-2 rounded-xl border border-slate-300 bg-white text-xs font-bold" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold text-sm shadow-md cursor-pointer">
+            Guardar gasto y descontar de caja
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PRODUCTO / EXISTENCIA -->
+  <div id="stockModal" class="fixed inset-0 z-50 hidden">
+    <div onclick="closeModal('stockModal')" class="absolute inset-0 bg-slate-950/60"></div>
+    <div class="relative min-h-screen flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 pointer-events-auto shadow-2xl border border-teal-200">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-base font-extrabold text-teal-800">Registrar o actualizar producto en stock</h3>
+          <button type="button" onclick="closeModal('stockModal')" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs cursor-pointer">✕</button>
+        </div>
+
+        <form onsubmit="saveInventoryItem(event)" class="space-y-3">
+          <div>
+            <label for="invName" class="block text-xs font-bold text-slate-600 mb-1">Nombre del producto</label>
+            <input type="text" id="invName" list="productSuggestions" required placeholder="Ej. Tomate, Cebolla, Aguacate" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold focus:outline-none focus:border-teal-600" />
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label for="invQty" class="block text-xs font-bold text-slate-600 mb-1">Existencia</label>
+              <input type="number" step="0.1" min="0" id="invQty" required placeholder="0" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-extrabold focus:outline-none focus:border-teal-600" />
+            </div>
+            <div>
+              <label for="invUnitCost" class="block text-xs font-bold text-slate-600 mb-1">Costo unit. ($)</label>
+              <input type="number" step="0.01" min="0" id="invUnitCost" required placeholder="0.00" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-extrabold focus:outline-none focus:border-teal-600" />
+            </div>
+            <div>
+              <label for="invSalePrice" class="block text-xs font-bold text-slate-600 mb-1">Precio Tienda ($)</label>
+              <input type="number" step="0.01" min="0" id="invSalePrice" value="1.00" required class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-extrabold focus:outline-none focus:border-teal-600" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2.5">
+            <div>
+              <label for="invUnit" class="block text-xs font-bold text-slate-600 mb-1">Unidad</label>
+              <select id="invUnit" class="w-full px-2.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                <option value="libras">Libras</option>
+                <option value="unidades">Unidades</option>
+                <option value="bolsas">Bolsas</option>
+                <option value="cajas">Cajas</option>
+                <option value="manojos">Manojos</option>
+              </select>
+            </div>
+            <div>
+              <label for="invCategory" class="block text-xs font-bold text-slate-600 mb-1">Categoría</label>
+              <select id="invCategory" class="w-full px-2.5 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold">
+                <option value="Verduras">Verduras</option>
+                <option value="Frutas">Frutas</option>
+                <option value="Otros">Otros</option>
+              </select>
+            </div>
+            <div>
+              <label for="invMin" class="block text-xs font-bold text-slate-600 mb-1">Alerta mínimo</label>
+              <input type="number" step="0.1" min="0" id="invMin" value="5" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-bold focus:outline-none focus:border-teal-600" />
+            </div>
+          </div>
+
+          <div>
+            <label for="invPromoLabel" class="block text-xs font-bold text-slate-600 mb-1">Etiqueta de venta en Tienda Online</label>
+            <input type="text" id="invPromoLabel" placeholder="Ej. 4 unidades x $1.00" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs font-semibold focus:outline-none focus:border-teal-600" />
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-2xl bg-teal-700 hover:bg-teal-800 text-white font-extrabold text-sm shadow-md cursor-pointer">
+            Guardar existencia, costo y precio
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PAGO SEMANAL -->
+  <div id="weeklyModal" class="fixed inset-0 z-50 hidden">
+    <div onclick="closeModal('weeklyModal')" class="absolute inset-0 bg-slate-950/60"></div>
+    <div class="relative min-h-screen flex items-center justify-center p-4 pointer-events-none">
+      <div class="w-full max-w-md bg-white rounded-3xl p-6 space-y-4 pointer-events-auto shadow-2xl border border-amber-200">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+          <h3 class="text-base font-extrabold text-amber-900">Nuevo pago semanal</h3>
+          <button type="button" onclick="closeModal('weeklyModal')" class="px-2.5 py-1 rounded-xl bg-slate-100 text-slate-600 font-bold text-xs cursor-pointer">✕</button>
+        </div>
+
+        <form onsubmit="addWeeklyPayment(event)" class="space-y-3">
+          <div>
+            <label for="wkConcept" class="block text-xs font-bold text-slate-600 mb-1">Concepto del pago semanal</label>
+            <input type="text" id="wkConcept" required placeholder="Ej. Alquiler de puesto, Flete semanal, Ayudante" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold focus:outline-none focus:border-[#ea780b]" />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="wkAmount" class="block text-xs font-bold text-slate-600 mb-1">Monto semanal ($)</label>
+              <input type="number" step="0.01" min="0.01" id="wkAmount" required placeholder="0.00" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm font-extrabold focus:outline-none focus:border-[#ea780b]" />
+            </div>
+            <div>
+              <label for="wkDay" class="block text-xs font-bold text-slate-600 mb-1">Día de pago</label>
+              <select id="wkDay" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold">
+                <option value="Lunes">Lunes</option>
+                <option value="Martes">Martes</option>
+                <option value="Miércoles">Miércoles</option>
+                <option value="Jueves">Jueves</option>
+                <option value="Viernes">Viernes</option>
+                <option value="Sábado">Sábado</option>
+                <option value="Domingo">Domingo</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label for="wkMethod" class="block text-xs font-bold text-slate-600 mb-1">Método de pago</label>
+              <select id="wkMethod" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold">
+                <option value="Efectivo">Efectivo</option>
+                <option value="Transferencia">Transferencia</option>
+                <option value="Tarjeta">Tarjeta</option>
+              </select>
+            </div>
+            <div>
+              <label for="wkPaid" class="block text-xs font-bold text-slate-600 mb-1">Estado inicial</label>
+              <select id="wkPaid" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm font-semibold">
+                <option value="false">Pendiente esta semana</option>
+                <option value="true">Pagado (descontar caja)</option>
+              </select>
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 rounded-2xl bg-[#ea780b] hover:bg-[#d46b06] text-white font-extrabold text-sm shadow-md cursor-pointer">
+            Guardar pago semanal
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const ADMIN_KEY = "FYVM2026";
+    const STORAGE_KEY = "biz_control_total_v6";
+    const DEFAULT_BOSS_WHATSAPP = "50379698478";
+
+    // Fecha local exacta de El Salvador (UTC-6)
+    const todayISO = () => {
+      const d = new Date(Date.now() - 6 * 3600 * 1000);
+      return d.toISOString().split("T")[0];
+    };
+
+    const CATALOG_META = {
+      "tomate": { salePrice: 1.00, promoLabel: "12 unidades x $1.00", badge: "Fresco hoy", image: "https://images.unsplash.com/photo-1592924357228-91a4daadcfea?auto=format&fit=crop&w=600&q=80" },
+      "cebolla": { salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "Oferta diaria", image: "https://images.unsplash.com/photo-1618512496248-a07fe83aa8cb?auto=format&fit=crop&w=600&q=80" },
+      "chile / jalapeño": { salePrice: 1.00, promoLabel: "6 unidades x $1.00", badge: "", image: "https://images.unsplash.com/photo-1563565375-f3fdfdbefa83?auto=format&fit=crop&w=600&q=80" },
+      "güisquil": { salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "", image: "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=600&q=80" },
+      "zanahoria": { salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "", image: "https://images.unsplash.com/photo-1598170845058-32b9d6a5da37?auto=format&fit=crop&w=600&q=80" },
+      "pepino": { salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "", image: "https://images.unsplash.com/photo-1449300079323-02e209d9d3a6?auto=format&fit=crop&w=600&q=80" },
+      "rábano": { salePrice: 1.00, promoLabel: "2 manojos x $1.00", badge: "", image: "https://images.unsplash.com/photo-1582284540020-8acbe03f4924?auto=format&fit=crop&w=600&q=80" },
+      "aguacate": { salePrice: 1.00, promoLabel: "2 unidades x $1.00", badge: "Al punto", image: "https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80" },
+      "limones": { salePrice: 1.00, promoLabel: "8 unidades x $1.00", badge: "Jugoso", image: "https://images.unsplash.com/photo-1590502593747-42a996133562?auto=format&fit=crop&w=600&q=80" },
+      "plátano": { salePrice: 1.00, promoLabel: "3 unidades x $1.00", badge: "Dulces", image: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80" },
+      "papa": { salePrice: 1.50, promoLabel: "1 libra x $1.50", badge: "Fresco", image: "https://images.unsplash.com/photo-1518977676601-b53f82aba655?auto=format&fit=crop&w=600&q=80" },
+      "ajo": { salePrice: 1.00, promoLabel: "1 malla / porción x $1.00", badge: "", image: "https://images.unsplash.com/photo-1540148426945-6cf22a6b2383?auto=format&fit=crop&w=600&q=80" }
+    };
+
+    const seedData = () => ({
+      openingCash: 0.00,
+      inventory: [
+        { id: 101, name: "Tomate", category: "Verduras", qty: 45, unitCost: 0.45, salePrice: 1.00, promoLabel: "12 unidades x $1.00", badge: "Fresco hoy", image: CATALOG_META["tomate"].image, unit: "libras", minStock: 10 },
+        { id: 102, name: "Cebolla", category: "Verduras", qty: 35, unitCost: 0.50, salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "Oferta diaria", image: CATALOG_META["cebolla"].image, unit: "libras", minStock: 10 },
+        { id: 103, name: "Chile / Jalapeño", category: "Verduras", qty: 18, unitCost: 0.55, salePrice: 1.00, promoLabel: "6 unidades x $1.00", badge: "", image: CATALOG_META["chile / jalapeño"].image, unit: "libras", minStock: 5 },
+        { id: 104, name: "Güisquil", category: "Verduras", qty: 24, unitCost: 0.35, salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "", image: CATALOG_META["güisquil"].image, unit: "unidades", minStock: 6 },
+        { id: 105, name: "Zanahoria", category: "Verduras", qty: 20, unitCost: 0.40, salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "", image: CATALOG_META["zanahoria"].image, unit: "libras", minStock: 6 },
+        { id: 106, name: "Pepino", category: "Verduras", qty: 22, unitCost: 0.30, salePrice: 1.00, promoLabel: "4 unidades x $1.00", badge: "", image: CATALOG_META["pepino"].image, unit: "unidades", minStock: 6 },
+        { id: 107, name: "Rábano", category: "Verduras", qty: 16, unitCost: 0.35, salePrice: 1.00, promoLabel: "2 manojos x $1.00", badge: "", image: CATALOG_META["rábano"].image, unit: "manojos", minStock: 5 },
+        { id: 108, name: "Aguacate", category: "Frutas", qty: 15, unitCost: 0.65, salePrice: 1.00, promoLabel: "2 unidades x $1.00", badge: "Al punto", image: CATALOG_META["aguacate"].image, unit: "unidades", minStock: 5 },
+        { id: 109, name: "Limones", category: "Frutas", qty: 30, unitCost: 0.15, salePrice: 1.00, promoLabel: "8 unidades x $1.00", badge: "Jugoso", image: CATALOG_META["limones"].image, unit: "unidades", minStock: 8 },
+        { id: 110, name: "Plátano", category: "Frutas", qty: 14, unitCost: 0.25, salePrice: 1.00, promoLabel: "3 unidades x $1.00", badge: "Dulces", image: CATALOG_META["plátano"].image, unit: "unidades", minStock: 5 },
+        { id: 111, name: "Papa", category: "Verduras", qty: 25, unitCost: 0.50, salePrice: 1.50, promoLabel: "1 libra x $1.50", badge: "Fresco", image: CATALOG_META["papa"].image, unit: "libras", minStock: 8 },
+        { id: 112, name: "Ajo", category: "Verduras", qty: 10, unitCost: 0.80, salePrice: 1.00, promoLabel: "1 malla / porción x $1.00", badge: "", image: CATALOG_META["ajo"].image, unit: "libras", minStock: 3 }
+      ],
+      weeklyPayments: [
+        { id: 501, concept: "Alquiler / Cuota de puesto semanal", amount: 25.00, payDay: "Domingo", method: "Efectivo", paid: false, paidDate: "" },
+        { id: 502, concept: "Transporte / Flete semanal", amount: 15.00, payDay: "Miércoles", method: "Efectivo", paid: false, paidDate: "" }
+      ],
+      sales: [
+        { id: 1801, date: "2026-11-18", product: "Ventas del día (libreta)", amount: 24.00, qty: 0, category: "Verduras", method: "Efectivo" },
+        { id: 1901, date: "2026-11-19", product: "Ventas del día (libreta)", amount: 13.00, qty: 0, category: "Verduras", method: "Efectivo" },
+        { id: 2001, date: "2026-11-20", product: "Ventas del día (libreta)", amount: 45.00, qty: 0, category: "Verduras", method: "Efectivo" },
+        { id: 2101, date: "2026-11-21", product: "Ventas del día (libreta)", amount: 75.00, qty: 0, category: "Verduras", method: "Efectivo" },
+        { id: 2201, date: "2026-11-22", product: "Ventas del día (libreta)", amount: 43.00, qty: 0, category: "Verduras", method: "Efectivo" },
+        { id: 2301, date: "2026-11-23", product: "Ventas en efectivo (libreta hoy)", amount: 62.25, qty: 0, category: "Verduras", method: "Efectivo" },
+        { id: 2302, date: "2026-11-23", product: "Cobros por transferencia (libreta hoy)", amount: 44.60, qty: 0, category: "Otros", method: "Transferencia" }
+      ],
+      expenses: [
+        {
+          id: 2399,
+          date: "2026-11-23",
+          description: "Gasto del día (bolsas / insumos)",
+          amount: 10.18,
+          type: "Insumos",
+          method: "Efectivo"
+        }
+      ]
+    });
+
+    const normalizeDB = (raw) => {
+      const base = seedData();
+      if (!raw || typeof raw !== "object") return base;
+      const inv = Array.isArray(raw.inventory)
+        ? raw.inventory.map(item => {
+            const meta = CATALOG_META[(item.name || "").toLowerCase().trim()] || {};
+            return {
+              ...item,
+              qty: Number(item.qty || 0),
+              unitCost: Number.isFinite(Number(item.unitCost)) ? Number(item.unitCost) : 0,
+              salePrice: Number(item.salePrice) > 0 ? Number(item.salePrice) : (meta.salePrice || 1.00),
+              promoLabel: item.promoLabel || meta.promoLabel || `Por ${item.unit || "unidad"}`,
+              badge: item.badge || meta.badge || "",
+              image: item.image || meta.image || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+              minStock: Number.isFinite(Number(item.minStock)) ? Number(item.minStock) : 5
+            };
+          })
+        : base.inventory;
+      return {
+        openingCash: Number.isFinite(Number(raw.openingCash)) ? Number(raw.openingCash) : base.openingCash,
+        inventory: inv,
+        weeklyPayments: Array.isArray(raw.weeklyPayments) ? raw.weeklyPayments : base.weeklyPayments,
+        sales: Array.isArray(raw.sales) ? raw.sales : base.sales,
+        expenses: Array.isArray(raw.expenses) ? raw.expenses : base.expenses
+      };
+    };
+
+    let db = (() => {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        const loaded = saved ? normalizeDB(JSON.parse(saved)) : seedData();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(loaded));
+        return loaded;
+      } catch {
+        return seedData();
+      }
+    })();
+
+    let selectedDay = "ALL";
+    let sortDesc = true;
+    let toastTimer = null;
+
+    const fmt = v => `$${Number(v || 0).toFixed(2)}`;
+    const fmtQty = v => {
+      const n = Number(v || 0);
+      return Number.isInteger(n) ? String(n) : n.toFixed(1);
+    };
+    const saveDB = () => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+      } catch {}
+    };
+
+    // Sincronización automática si entran pedidos desde index.html en otra pestaña
+    window.addEventListener("storage", (e) => {
+      if (e.key === STORAGE_KEY && e.newValue) {
+        try {
+          db = normalizeDB(JSON.parse(e.newValue));
+          render();
+          showToast("Nuevo movimiento sincronizado desde la tienda.");
+        } catch {}
+      }
+    });
+
+    function showToast(msg, tone = "success") {
+      const el = document.getElementById("statusToast");
+      if (!el) return;
+      const styles = tone === "danger"
+        ? "bg-rose-50 text-rose-800 border-rose-200"
+        : "bg-emerald-50 text-[#14532d] border-emerald-200";
+      el.className = `rounded-2xl px-4 py-3 text-xs font-bold border flex items-center justify-between gap-2 ${styles}`;
+      el.innerHTML = `<span>${msg}</span><button type="button" onclick="hideToast()" class="text-[11px] underline cursor-pointer">Cerrar</button>`;
+      el.classList.remove("hidden");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(hideToast, 4200);
+    }
+
+    function hideToast() {
+      const el = document.getElementById("statusToast");
+      if (el) el.classList.add("hidden");
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const pass = document.getElementById("loginPass").value.trim();
+      if (pass === ADMIN_KEY) {
+        document.getElementById("loginError").classList.add("hidden");
+        document.getElementById("authScreen").classList.add("hidden");
+        document.getElementById("appScreen").classList.remove("hidden");
+        document.getElementById("saleDate").value = todayISO();
+        document.getElementById("expDt").value = todayISO();
+        render();
+      } else {
+        document.getElementById("loginError").classList.remove("hidden");
+      }
+    }
+
+    function logout() {
+      document.getElementById("loginPass").value = "";
+      document.getElementById("appScreen").classList.add("hidden");
+      document.getElementById("authScreen").classList.remove("hidden");
+    }
+
+    function openModal(id) { document.getElementById(id).classList.remove("hidden"); }
+    function closeModal(id) { document.getElementById(id).classList.add("hidden"); }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        ["ventaModal", "gastoModal", "stockModal", "weeklyModal", "closeDayModal"].forEach(closeModal);
+      }
+    });
+
+    function selectDay(d) {
+      selectedDay = d;
+      render();
+    }
+
+    function onDaySelectorChange() {
+      selectedDay = document.getElementById("daySelector").value;
+      render();
+    }
+
+    function toggleSort() {
+      sortDesc = !sortDesc;
+      document.getElementById("sortToggleBtn").textContent = sortDesc ? "Mayor a menor ↓" : "Menor a mayor ↑";
+      render();
+    }
+
+    function adjustInventoryByName(name, deltaQty, fallbackCategory = "Verduras", purchaseTotalAmount = 0) {
+      if (!name || !deltaQty) return;
+      const clean = name.trim();
+      const found = db.inventory.find(item => item.name.toLowerCase() === clean.toLowerCase());
+      if (found) {
+        const oldQty = Number(found.qty || 0);
+        const oldCost = Number(found.unitCost || 0);
+        const newQty = Math.max(0, Number((oldQty + Number(deltaQty)).toFixed(2)));
+        if (deltaQty > 0 && purchaseTotalAmount > 0 && newQty > 0) {
+          const weightedCost = ((oldQty * oldCost) + Number(purchaseTotalAmount)) / newQty;
+          found.unitCost = Number(weightedCost.toFixed(2));
+        }
+        found.qty = newQty;
+      } else if (deltaQty > 0) {
+        const inferredCost = purchaseTotalAmount > 0 ? Number((purchaseTotalAmount / deltaQty).toFixed(2)) : 0;
+        const meta = CATALOG_META[clean.toLowerCase()] || {};
+        db.inventory.push({
+          id: Date.now() + Math.floor(Math.random() * 100),
+          name: clean,
+          category: fallbackCategory,
+          qty: Number(Number(deltaQty).toFixed(2)),
+          unitCost: inferredCost,
+          salePrice: meta.salePrice || 1.00,
+          promoLabel: meta.promoLabel || "Por unidad",
+          badge: meta.badge || "",
+          image: meta.image || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+          unit: "unidades",
+          minStock: 5
+        });
+      }
+    }
+
+    function addSale(e) {
+      e.preventDefault();
+      const product = document.getElementById("saleProduct").value.trim();
+      const amount = parseFloat(document.getElementById("saleAmount").value);
+      const qty = parseFloat(document.getElementById("saleQty").value) || 0;
+      const date = document.getElementById("saleDate").value;
+      const category = document.getElementById("saleCategory").value;
+      const method = document.getElementById("saleMethod").value;
+      if (!product || isNaN(amount) || amount <= 0 || !date) return;
+
+      db.sales.unshift({
+        id: Date.now(),
+        product,
+        amount,
+        qty,
+        date,
+        category,
+        method
+      });
+
+      if (qty > 0) {
+        adjustInventoryByName(product, -qty, category, 0);
+      }
+
+      saveDB();
+      e.target.reset();
+      document.getElementById("saleQty").value = "1";
+      document.getElementById("saleDate").value = todayISO();
+      closeModal("ventaModal");
+      render();
+      showToast(`Entrada registrada: ${product} (${fmt(amount)})`);
+    }
+
+    function addExpense(e) {
+      e.preventDefault();
+      const description = document.getElementById("expDesc").value.trim();
+      const amount = parseFloat(document.getElementById("expAmt").value);
+      const date = document.getElementById("expDt").value;
+      const type = document.getElementById("expType").value;
+      const method = document.getElementById("expPay").value;
+      const stockProduct = document.getElementById("expStockProduct").value.trim();
+      const stockQty = parseFloat(document.getElementById("expStockQty").value) || 0;
+      if (!description || isNaN(amount) || amount <= 0 || !date) return;
+
+      db.expenses.unshift({
+        id: Date.now(),
+        description,
+        amount,
+        date,
+        type,
+        method
+      });
+
+      if (stockProduct && stockQty > 0) {
+        adjustInventoryByName(stockProduct, stockQty, "Verduras", amount);
+      }
+
+      saveDB();
+      e.target.reset();
+      document.getElementById("expStockQty").value = "0";
+      document.getElementById("expDt").value = todayISO();
+      closeModal("gastoModal");
+      render();
+      showToast(`Gasto registrado: ${description} (${fmt(amount)})`, "danger");
+    }
+
+    function deleteSale(id) {
+      const item = db.sales.find(x => x.id === id);
+      if (!item) return;
+      if (!confirm(`¿Eliminar la venta de "${item.product}" por ${fmt(item.amount)}?`)) return;
+      if (Number(item.qty) > 0) {
+        adjustInventoryByName(item.product, Number(item.qty), item.category, 0);
+      }
+      db.sales = db.sales.filter(x => x.id !== id);
+      saveDB();
+      render();
+      showToast(`Venta eliminada: ${item.product}`, "danger");
+    }
+
+    function deleteExpense(id) {
+      const item = db.expenses.find(x => x.id === id);
+      if (!item) return;
+      if (!confirm(`¿Eliminar el gasto "${item.description}" por ${fmt(item.amount)}?`)) return;
+      db.expenses = db.expenses.filter(x => x.id !== id);
+      saveDB();
+      render();
+      showToast(`Gasto eliminado: ${item.description}`, "danger");
+    }
+
+    function openEditStock(id) {
+      const item = db.inventory.find(x => x.id === id);
+      if (!item) return;
+      document.getElementById("invName").value = item.name;
+      document.getElementById("invQty").value = item.qty;
+      document.getElementById("invUnitCost").value = Number(item.unitCost || 0).toFixed(2);
+      document.getElementById("invSalePrice").value = Number(item.salePrice || 1.00).toFixed(2);
+      document.getElementById("invUnit").value = item.unit || "libras";
+      document.getElementById("invCategory").value = item.category || "Verduras";
+      document.getElementById("invMin").value = item.minStock ?? 5;
+      document.getElementById("invPromoLabel").value = item.promoLabel || "";
+      openModal("stockModal");
+    }
+
+    function saveInventoryItem(e) {
+      e.preventDefault();
+      const name = document.getElementById("invName").value.trim();
+      const qty = parseFloat(document.getElementById("invQty").value);
+      const unitCost = parseFloat(document.getElementById("invUnitCost").value) || 0;
+      const salePrice = parseFloat(document.getElementById("invSalePrice").value) || 1.00;
+      const unit = document.getElementById("invUnit").value;
+      const category = document.getElementById("invCategory").value;
+      const minStock = parseFloat(document.getElementById("invMin").value) || 0;
+      const promoLabel = document.getElementById("invPromoLabel").value.trim() || `1 ${unit} x ${fmt(salePrice)}`;
+      if (!name || isNaN(qty) || qty < 0) return;
+
+      const meta = CATALOG_META[name.toLowerCase()] || {};
+      const existing = db.inventory.find(x => x.name.toLowerCase() === name.toLowerCase());
+      if (existing) {
+        existing.qty = qty;
+        existing.unitCost = unitCost;
+        existing.salePrice = salePrice;
+        existing.unit = unit;
+        existing.category = category;
+        existing.minStock = minStock;
+        existing.promoLabel = promoLabel;
+      } else {
+        db.inventory.push({
+          id: Date.now(),
+          name,
+          qty,
+          unitCost,
+          salePrice,
+          promoLabel,
+          badge: meta.badge || "Fresco",
+          image: meta.image || "https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=600&q=80",
+          unit,
+          category,
+          minStock
+        });
+      }
+
+      saveDB();
+      e.target.reset();
+      document.getElementById("invMin").value = "5";
+      document.getElementById("invSalePrice").value = "1.00";
+      closeModal("stockModal");
+      render();
+      showToast(`Inventario actualizado: ${name} (${fmtQty(qty)} ${unit})`);
+    }
+
+    function quickStockAdjust(id, delta) {
+      const item = db.inventory.find(x => x.id === id);
+      if (!item) return;
+      item.qty = Math.max(0, Number((Number(item.qty) + delta).toFixed(2)));
+      saveDB();
+      render();
+    }
+
+    function deleteInventoryItem(id) {
+      const item = db.inventory.find(x => x.id === id);
+      if (!item) return;
+      if (!confirm(`¿Quitar "${item.name}" del inventario?`)) return;
+      db.inventory = db.inventory.filter(x => x.id !== id);
+      saveDB();
+      render();
+      showToast(`Producto retirado de inventario: ${item.name}`, "danger");
+    }
+
+    function addWeeklyPayment(e) {
+      e.preventDefault();
+      const concept = document.getElementById("wkConcept").value.trim();
+      const amount = parseFloat(document.getElementById("wkAmount").value);
+      const payDay = document.getElementById("wkDay").value;
+      const method = document.getElementById("wkMethod").value;
+      const paid = document.getElementById("wkPaid").value === "true";
+      if (!concept || isNaN(amount) || amount <= 0) return;
+
+      db.weeklyPayments.unshift({
+        id: Date.now(),
+        concept,
+        amount,
+        payDay,
+        method,
+        paid,
+        paidDate: paid ? todayISO() : ""
+      });
+
+      saveDB();
+      e.target.reset();
+      closeModal("weeklyModal");
+      render();
+      showToast(`Pago semanal agregado: ${concept} (${fmt(amount)})`);
+    }
+
+    function toggleWeeklyPaid(id) {
+      const wk = db.weeklyPayments.find(x => x.id === id);
+      if (!wk) return;
+      wk.paid = !wk.paid;
+      wk.paidDate = wk.paid ? todayISO() : "";
+      saveDB();
+      render();
+      showToast(
+        wk.paid
+          ? `Pago semanal marcado como PAGADO: ${wk.concept} (${fmt(wk.amount)})`
+          : `Pago semanal marcado como PENDIENTE: ${wk.concept}`,
+        wk.paid ? "danger" : "success"
+      );
+    }
+
+    function deleteWeeklyPayment(id) {
+      const wk = db.weeklyPayments.find(x => x.id === id);
+      if (!wk) return;
+      if (!confirm(`¿Eliminar el pago semanal "${wk.concept}"?`)) return;
+      db.weeklyPayments = db.weeklyPayments.filter(x => x.id !== id);
+      saveDB();
+      render();
+      showToast(`Pago semanal eliminado: ${wk.concept}`, "danger");
+    }
+
+    function editOpeningCash() {
+      const val = prompt("Efectivo inicial de caja ($):", Number(db.openingCash || 0).toFixed(2));
+      if (val === null) return;
+      const n = parseFloat(val);
+      if (!isNaN(n) && n >= 0) {
+        db.openingCash = n;
+        saveDB();
+        render();
+        showToast(`Base inicial de caja actualizada a ${fmt(n)}`);
+      }
+    }
+
+    // CIERRE DEL DÍA EN EXCEL (.XLSX) + WHATSAPP AL JEFE
+    function openCloseDayModal() {
+      const dateInput = document.getElementById("closeReportDate");
+      dateInput.value = selectedDay !== "ALL" ? selectedDay : todayISO();
+      updateCloseDayPreview();
+      openModal("closeDayModal");
+    }
+
+    function computeDailyReportData(reportDate) {
+      const daySales = db.sales.filter(x => x.date === reportDate);
+      const dayExpenses = db.expenses.filter(x => x.date === reportDate);
+      const dayWeeklyPaid = db.weeklyPayments.filter(w => w.paid && w.paidDate === reportDate);
+
+      const salesTotal = daySales.reduce((s, x) => s + Number(x.amount), 0);
+      const salesEfectivo = daySales.filter(x => x.method === "Efectivo").reduce((s, x) => s + Number(x.amount), 0);
+      const salesTransf = daySales.filter(x => x.method === "Transferencia").reduce((s, x) => s + Number(x.amount), 0);
+      const salesTarjeta = daySales.filter(x => x.method === "Tarjeta").reduce((s, x) => s + Number(x.amount), 0);
+
+      const expDailyTotal = dayExpenses.reduce((s, x) => s + Number(x.amount), 0);
+      const expWeeklyTotal = dayWeeklyPaid.reduce((s, w) => s + Number(w.amount), 0);
+      const outTotal = expDailyTotal + expWeeklyTotal;
+      const netDay = salesTotal - outTotal;
+
+      const openingCash = Number(db.openingCash || 0);
+      const allCashIn = db.sales.filter(x => x.method === "Efectivo").reduce((s, x) => s + Number(x.amount), 0);
+      const allCashOut = db.expenses.filter(x => x.method === "Efectivo").reduce((s, x) => s + Number(x.amount), 0)
+        + db.weeklyPayments.filter(w => w.paid && w.method === "Efectivo").reduce((s, w) => s + Number(w.amount), 0);
+      const physicalCashBalance = openingCash + allCashIn - allCashOut;
+
+      const stockValue = db.inventory.reduce((s, i) => s + (Number(i.qty || 0) * Number(i.unitCost || 0)), 0);
+
+      return {
+        reportDate,
+        daySales,
+        dayExpenses,
+        dayWeeklyPaid,
+        salesTotal,
+        salesEfectivo,
+        salesTransf,
+        salesTarjeta,
+        expDailyTotal,
+        expWeeklyTotal,
+        outTotal,
+        netDay,
+        physicalCashBalance,
+        stockValue
+      };
+    }
+
+    function updateCloseDayPreview() {
+      const reportDate = document.getElementById("closeReportDate").value || todayISO();
+      const r = computeDailyReportData(reportDate);
+      document.getElementById("closeDayPreviewBox").innerHTML = `
+        <p class="font-extrabold text-[#14532d] text-sm">Resumen Jornada ${r.reportDate}</p>
+        <div class="grid grid-cols-2 gap-1 pt-1">
+          <span>Ventas del día:</span><strong class="text-right text-emerald-700">${fmt(r.salesTotal)}</strong>
+          <span>• En Efectivo:</span><strong class="text-right">${fmt(r.salesEfectivo)}</strong>
+          <span>• Transferencia:</span><strong class="text-right">${fmt(r.salesTransf)}</strong>
+          <span>Gastos / Salidas día:</span><strong class="text-right text-rose-600">-${fmt(r.outTotal)}</strong>
+          <span class="border-t border-emerald-200 pt-1 font-extrabold">Balance Neto Día:</span><strong class="border-t border-emerald-200 pt-1 text-right text-[#14532d]">${fmt(r.netDay)}</strong>
+          <span>Efectivo físico en caja:</span><strong class="text-right text-teal-800">${fmt(r.physicalCashBalance)}</strong>
+        </div>
+      `;
+    }
+
+    function executeEndOfDayReport(sendWhatsapp) {
+      const reportDate = document.getElementById("closeReportDate").value || todayISO();
+      const bossPhone = (document.getElementById("bossWhatsappInput").value || DEFAULT_BOSS_WHATSAPP).replace(/\D/g, "");
+      const r = computeDailyReportData(reportDate);
+
+      if (typeof XLSX === "undefined") {
+        alert("No se pudo cargar el generador de Excel. Revisa tu conexión a internet.");
+        return;
+      }
+
+      const wb = XLSX.utils.book_new();
+
+      // Hoja 1: Resumen Ejecutivo del Día
+      const resumenRows = [
+        ["FRUTAS Y VERDURAS MANCÍA — CIERRE DIARIO DE OPERACIÓN"],
+        ["Ubicación", "Soyapango, San Salvador"],
+        ["Fecha de cierre", r.reportDate],
+        [],
+        ["INDICADOR", "MONTO ($)"],
+        ["Total Ventas / Entradas del día", Number(r.salesTotal.toFixed(2))],
+        ["   - Ventas en Efectivo", Number(r.salesEfectivo.toFixed(2))],
+        ["   - Ventas por Transferencia", Number(r.salesTransf.toFixed(2))],
+        ["   - Ventas con Tarjeta", Number(r.salesTarjeta.toFixed(2))],
+        ["Total Gastos Diarios", Number(r.expDailyTotal.toFixed(2))],
+        ["Total Pagos Semanales Pagados hoy", Number(r.expWeeklyTotal.toFixed(2))],
+        ["Total Salidas del Día", Number(r.outTotal.toFixed(2))],
+        ["BALANCE NETO DEL DÍA", Number(r.netDay.toFixed(2))],
+        [],
+        ["EFECTIVO FÍSICO ACUMULADO EN CAJA", Number(r.physicalCashBalance.toFixed(2))],
+        ["VALOR TOTAL DE INVENTARIO EN STOCK", Number(r.stockValue.toFixed(2))]
+      ];
+      const wsResumen = XLSX.utils.aoa_to_sheet(resumenRows);
+      wsResumen["!cols"] = [{ wch: 42 }, { wch: 18 }];
+      XLSX.utils.book_append_sheet(wb, wsResumen, "Resumen del Dia");
+
+      // Hoja 2: Ventas del Día
+      const ventasRows = [
+        ["Fecha", "Producto / Concepto", "Categoría", "Cantidad", "Método de Pago", "Monto ($)"]
+      ];
+      if (r.daySales.length) {
+        r.daySales.forEach(s => {
+          ventasRows.push([s.date, s.product, s.category, Number(s.qty || 0), s.method, Number(Number(s.amount).toFixed(2))]);
+        });
+      } else {
+        ventasRows.push([r.reportDate, "Sin ventas registradas en esta fecha", "-", 0, "-", 0]);
+      }
+      const wsVentas = XLSX.utils.aoa_to_sheet(ventasRows);
+      wsVentas["!cols"] = [{ wch: 14 }, { wch: 36 }, { wch: 14 }, { wch: 12 }, { wch: 18 }, { wch: 14 }];
+      XLSX.utils.book_append_sheet(wb, wsVentas, "Ventas del Dia");
+
+      // Hoja 3: Gastos y Salidas del Día
+      const gastosRows = [
+        ["Fecha", "Descripción / Concepto", "Tipo", "Método de Pago", "Monto ($)"]
+      ];
+      r.dayExpenses.forEach(g => {
+        gastosRows.push([g.date, g.description, g.type, g.method, Number(Number(g.amount).toFixed(2))]);
+      });
+      r.dayWeeklyPaid.forEach(w => {
+        gastosRows.push([w.paidDate, `${w.concept} (Pago semanal)`, "Semanal", w.method, Number(Number(w.amount).toFixed(2))]);
+      });
+      if (gastosRows.length === 1) {
+        gastosRows.push([r.reportDate, "Sin gastos registrados en esta fecha", "-", "-", 0]);
+      }
+      const wsGastos = XLSX.utils.aoa_to_sheet(gastosRows);
+      wsGastos["!cols"] = [{ wch: 14 }, { wch: 38 }, { wch: 16 }, { wch: 18 }, { wch: 14 }];
+      XLSX.utils.book_append_sheet(wb, wsGastos, "Gastos del Dia");
+
+      // Hoja 4: Inventario Valorizado Actual
+      const invRows = [
+        ["Producto", "Categoría", "Existencia Actual", "Unidad", "Costo Unitario ($)", "Precio Tienda ($)", "Valor Total en Stock ($)", "Estado"]
+      ];
+      db.inventory.forEach(item => {
+        const val = Number(item.qty || 0) * Number(item.unitCost || 0);
+        const status = Number(item.qty || 0) <= Number(item.minStock || 0) ? "STOCK BAJO" : "OK";
+        invRows.push([
+          item.name,
+          item.category,
+          Number(item.qty || 0),
+          item.unit,
+          Number(Number(item.unitCost || 0).toFixed(2)),
+          Number(Number(item.salePrice || 0).toFixed(2)),
+          Number(val.toFixed(2)),
+          status
+        ]);
+      });
+      const wsInv = XLSX.utils.aoa_to_sheet(invRows);
+      wsInv["!cols"] = [{ wch: 24 }, { wch: 14 }, { wch: 18 }, { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 22 }, { wch: 14 }];
+      XLSX.utils.book_append_sheet(wb, wsInv, "Inventario Actual");
+
+      const fileName = `Cierre_Mancia_${r.reportDate}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+
+      closeModal("closeDayModal");
+      showToast(`Excel "${fileName}" generado y descargado.`);
+
+      if (sendWhatsapp && bossPhone) {
+        const waText =
+          `📊 *CIERRE DEL DÍA — FRUTAS Y VERDURAS MANCÍA*\n` +
+          `📅 *Fecha:* ${r.reportDate}\n\n` +
+          `💰 *Ventas del día:* ${fmt(r.salesTotal)}\n` +
+          `   • Efectivo: ${fmt(r.salesEfectivo)}\n` +
+          `   • Transferencia: ${fmt(r.salesTransf)}\n` +
+          `📉 *Salidas / Gastos del día:* -${fmt(r.outTotal)}\n` +
+          `✅ *Balance Neto del Día:* ${fmt(r.netDay)}\n\n` +
+          `💵 *Efectivo físico en caja:* ${fmt(r.physicalCashBalance)}\n` +
+          `📦 *Valor inventario en stock:* ${fmt(r.stockValue)}\n\n` +
+          `📎 _Adjunto archivo Excel descargado (${fileName}) con el detalle completo._`;
+
+        window.open(`https://wa.me/${bossPhone}?text=${encodeURIComponent(waText)}`, "_blank");
+      }
+    }
+
+    function restoreSeed() {
+      if (!confirm("¿Restaurar los datos base desde el Día 1?")) return;
+      db = seedData();
+      selectedDay = "ALL";
+      saveDB();
+      render();
+      showToast("Datos base restaurados.");
+    }
+
+    function copyBackup() {
+      const json = JSON.stringify(db, null, 2);
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(json)
+          .then(() => showToast("Respaldo JSON copiado al portapapeles."))
+          .catch(() => prompt("Copia el respaldo:", json));
+      } else {
+        prompt("Copia el respaldo:", json);
+      }
+    }
+
+    function downloadBackup() {
+      const json = JSON.stringify(db, null, 2);
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `control-total-mancia-${todayISO()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Archivo JSON descargado.");
+    }
+
+    function importBackup(event) {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const parsed = JSON.parse(String(reader.result || "{}"));
+          if (!Array.isArray(parsed.sales) || !Array.isArray(parsed.expenses)) {
+            alert("El archivo no tiene la estructura esperada.");
+            return;
+          }
+          db = normalizeDB(parsed);
+          selectedDay = "ALL";
+          saveDB();
+          render();
+          showToast(`Respaldo importado: ${db.sales.length} entradas y ${db.expenses.length} gastos.`);
+        } catch {
+          alert("No se pudo leer el archivo JSON.");
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = "";
+    }
+
+    function syncDaySelector(allDates) {
+      const select = document.getElementById("daySelector");
+      if (!select) return;
+      if (selectedDay !== "ALL" && !allDates.includes(selectedDay)) {
+        selectedDay = "ALL";
+      }
+      const options = [
+        `<option value="ALL">Todos los días (${allDates.length} jornadas)</option>`,
+        ...allDates.map((d, idx) => `<option value="${d}">Día ${idx + 1} • ${d}</option>`)
+      ];
+      select.innerHTML = options.join("");
+      select.value = selectedDay;
+    }
+
+    function syncProductSuggestions() {
+      const dl = document.getElementById("productSuggestions");
+      if (!dl) return;
+      const names = [...new Set([
+        ...db.inventory.map(x => x.name),
+        ...db.sales.map(x => x.product)
+      ])];
+      dl.innerHTML = names.map(n => `<option value="${n}"></option>`).join("");
+    }
+
+    function render() {
+      syncProductSuggestions();
+
+      const totalSales = db.sales.reduce((s, x) => s + Number(x.amount), 0);
+      const dailyExpensesTotal = db.expenses.reduce((s, x) => s + Number(x.amount), 0);
+      const paidWeeklyTotal = db.weeklyPayments.filter(w => w.paid).reduce((s, w) => s + Number(w.amount), 0);
+      const scheduledWeeklyTotal = db.weeklyPayments.reduce((s, w) => s + Number(w.amount), 0);
+      const totalOutflows = dailyExpensesTotal + paidWeeklyTotal;
+
+      const net = totalSales - totalOutflows;
+      const margin = totalSales > 0 ? (net / totalSales) * 100 : 0;
+
+      const allDates = [...new Set([...db.sales.map(x => x.date), ...db.expenses.map(x => x.date)])].sort();
+      const dayCount = Math.max(1, allDates.length);
+      syncDaySelector(allDates);
+
+      const openingCash = Number(db.openingCash || 0);
+      const cashSales = db.sales.filter(x => x.method === "Efectivo").reduce((s, x) => s + Number(x.amount), 0);
+      const cashOutflows = db.expenses.filter(x => x.method === "Efectivo").reduce((s, x) => s + Number(x.amount), 0)
+        + db.weeklyPayments.filter(w => w.paid && w.method === "Efectivo").reduce((s, w) => s + Number(w.amount), 0);
+      const cashBalance = openingCash + cashSales - cashOutflows;
+
+      const t = todayISO();
+      const cashInToday = db.sales.filter(x => x.date === t).reduce((s, x) => s + Number(x.amount), 0);
+      const cashOutToday = db.expenses.filter(x => x.date === t).reduce((s, x) => s + Number(x.amount), 0)
+        + db.weeklyPayments.filter(w => w.paid && w.paidDate === t).reduce((s, w) => s + Number(w.amount), 0);
+      const netToday = cashInToday - cashOutToday;
+
+      document.getElementById("kpiIngresos").textContent = fmt(totalSales);
+      document.getElementById("kpiPromedioDia").textContent = `Promedio diario (${dayCount} días): ${fmt(totalSales / dayCount)}`;
+      document.getElementById("kpiEgresos").textContent = fmt(totalOutflows);
+      document.getElementById("kpiDesgloseEgresos").textContent = `Diarios: ${fmt(dailyExpensesTotal)} • Semanales pagados: ${fmt(paidWeeklyTotal)}`;
+
+      const netoEl = document.getElementById("kpiNeto");
+      netoEl.textContent = fmt(net);
+      netoEl.className = `text-2xl font-extrabold mt-1 ${net >= 0 ? "text-slate-900" : "text-rose-600"}`;
+      document.getElementById("kpiMargen").textContent = `Margen: ${margin.toFixed(1)}%`;
+
+      document.getElementById("kpiCajaActual").textContent = fmt(cashBalance);
+      document.getElementById("kpiCajaHoy").textContent = `Hoy: ${netToday >= 0 ? "+" : ""}${fmt(netToday)}`;
+      document.getElementById("baseCashBtn").textContent = `Base inicial (${fmt(openingCash)})`;
+      document.getElementById("baseCashHeaderLabel").textContent = `Base inicial en efectivo: ${fmt(openingCash)}`;
+
+      // Desglose por método de pago
+      const methods = ["Efectivo", "Transferencia", "Tarjeta"];
+      document.getElementById("methodBreakdown").innerHTML = methods.map(m => {
+        const mIn = db.sales.filter(x => x.method === m).reduce((s, x) => s + Number(x.amount), 0) + (m === "Efectivo" ? openingCash : 0);
+        const mOut = db.expenses.filter(x => x.method === m).reduce((s, x) => s + Number(x.amount), 0)
+          + db.weeklyPayments.filter(w => w.paid && w.method === m).reduce((s, w) => s + Number(w.amount), 0);
+        const mNet = mIn - mOut;
+        return `
+          <div class="rounded-2xl bg-[#f9fbf9] border border-slate-200 p-3.5 space-y-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold text-slate-800">${m}</span>
+              <span class="text-sm font-extrabold ${mNet >= 0 ? "text-[#14532d]" : "text-rose-600"}">${fmt(mNet)}</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500">
+              <span>Entra: <strong class="text-emerald-700">${fmt(mIn)}</strong></span>
+              <span>Sale: <strong class="text-rose-600">${fmt(mOut)}</strong></span>
+            </div>
+          </div>`;
+      }).join("");
+
+      // Inventario valorizado
+      const totalStockValue = db.inventory.reduce((s, item) => s + (Number(item.qty || 0) * Number(item.unitCost || 0)), 0);
+      document.getElementById("inventoryTotalValueBadge").textContent = `Valor en stock: ${fmt(totalStockValue)}`;
+
+      const lowStockItems = db.inventory.filter(x => Number(x.qty) <= Number(x.minStock || 0));
+      document.getElementById("stockAlertBadge").textContent = `${lowStockItems.length} ${lowStockItems.length === 1 ? "alerta de stock" : "alertas de stock"}`;
+      document.getElementById("stockAlertBadge").className = lowStockItems.length
+        ? "px-3 py-1.5 rounded-xl bg-rose-100 text-rose-800 text-xs font-extrabold"
+        : "px-3 py-1.5 rounded-xl bg-emerald-100 text-[#14532d] text-xs font-extrabold";
+
+      document.getElementById("inventoryGrid").innerHTML = db.inventory.length
+        ? db.inventory.map(item => {
+            const isLow = Number(item.qty) <= Number(item.minStock || 0);
+            const itemValue = Number(item.qty || 0) * Number(item.unitCost || 0);
+            return `
+              <div class="rounded-2xl border p-3.5 flex items-center justify-between gap-2 ${isLow ? "bg-rose-50/60 border-rose-200" : "bg-[#f9fbf9] border-slate-200"}">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <p class="text-sm font-extrabold text-slate-900">${item.name}</p>
+                    <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white border border-slate-200 text-slate-600">${item.category}</span>
+                    ${isLow ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-600 text-white">Stock bajo</span>` : ""}
+                  </div>
+                  <p class="text-xs font-extrabold text-teal-800 mt-1">
+                    Existencia: ${fmtQty(item.qty)} ${item.unit} • <span class="text-[#14532d]">Valor: ${fmt(itemValue)}</span>
+                  </p>
+                  <p class="text-[10px] text-slate-500">
+                    Costo: <strong>${fmt(item.unitCost)}</strong> • Tienda: <strong>${fmt(item.salePrice)}</strong>
+                  </p>
+                </div>
+
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" onclick="openEditStock(${item.id})" title="Editar producto" class="px-2 h-7 rounded-lg bg-white border border-slate-300 hover:bg-teal-50 hover:text-teal-800 font-bold text-[11px] cursor-pointer">Editar</button>
+                  <button type="button" onclick="quickStockAdjust(${item.id}, -1)" title="Restar 1" class="w-7 h-7 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 font-extrabold text-xs cursor-pointer">-</button>
+                  <button type="button" onclick="quickStockAdjust(${item.id}, 1)" title="Sumar 1" class="w-7 h-7 rounded-lg bg-white border border-slate-300 hover:bg-slate-100 font-extrabold text-xs cursor-pointer">+</button>
+                  <button type="button" onclick="deleteInventoryItem(${item.id})" title="Eliminar" class="px-2 h-7 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-500 font-bold text-[11px] cursor-pointer">✕</button>
+                </div>
+              </div>`;
+          }).join("")
+        : `<p class="text-xs text-slate-400 py-3">Sin productos en inventario todavía.</p>`;
+
+      // Pagos semanales
+      document.getElementById("weeklyTotalBadge").textContent = `Compromiso semanal: ${fmt(scheduledWeeklyTotal)} (Pagado: ${fmt(paidWeeklyTotal)})`;
+      document.getElementById("weeklyPaymentsList").innerHTML = db.weeklyPayments.length
+        ? db.weeklyPayments.map(wk => `
+          <div class="rounded-2xl border p-4 flex items-center justify-between gap-3 ${wk.paid ? "bg-emerald-50/50 border-emerald-200" : "bg-amber-50/50 border-amber-200"}">
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <p class="text-sm font-extrabold text-slate-900">${wk.concept}</p>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-extrabold ${wk.paid ? "bg-emerald-600 text-white" : "bg-amber-500 text-slate-950"}">
+                  ${wk.paid ? "Pagado" : "Pendiente"}
+                </span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1">
+                Cada <strong>${wk.payDay}</strong> • ${wk.method} • <strong class="text-rose-700">${fmt(wk.amount)}</strong>
+              </p>
+              ${wk.paid && wk.paidDate ? `<p class="text-[10px] text-slate-400 mt-0.5">Pagado el ${wk.paidDate}</p>` : ""}
+            </div>
+
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onclick="toggleWeeklyPaid(${wk.id})"
+                class="px-3 py-1.5 rounded-xl font-extrabold text-xs cursor-pointer transition ${
+                  wk.paid
+                    ? "bg-slate-200 hover:bg-slate-300 text-slate-800"
+                    : "bg-[#14532d] hover:bg-[#0f3f22] text-white"
+                }"
+              >
+                ${wk.paid ? "Marcar pendiente" : "Marcar pagado"}
+              </button>
+              <button
+                type="button"
+                onclick="deleteWeeklyPayment(${wk.id})"
+                class="px-2 py-1.5 rounded-xl bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-500 font-bold text-xs cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+          </div>`).join("")
+        : `<p class="text-xs text-slate-400 py-3">Sin pagos semanales registrados.</p>`;
+
+      // Evolución diaria
+      const dayTotals = allDates.map(d => db.sales.filter(x => x.date === d).reduce((s, x) => s + Number(x.amount), 0));
+      const maxDayVal = Math.max(1, ...dayTotals);
+
+      document.getElementById("dailyTimeline").innerHTML = allDates.map((d, idx) => {
+        const dSales = dayTotals[idx];
+        const prevSales = idx > 0 ? dayTotals[idx - 1] : null;
+        const dExp = db.expenses.filter(x => x.date === d).reduce((s, x) => s + Number(x.amount), 0);
+        const dLines = db.sales.filter(x => x.date === d).length;
+        const barPct = Math.max(8, Math.round((dSales / maxDayVal) * 100));
+        const active = selectedDay === d;
+
+        let trendBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-[#b45309] text-[10px] font-extrabold">Día 1</span>`;
+        if (prevSales !== null && prevSales > 0) {
+          const diffPct = ((dSales - prevSales) / prevSales) * 100;
+          if (diffPct >= 0) {
+            trendBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-[#14532d] text-[10px] font-extrabold">▲ +${diffPct.toFixed(0)}%</span>`;
+          } else {
+            trendBadge = `<span class="px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 text-[10px] font-extrabold">▼ ${diffPct.toFixed(0)}%</span>`;
+          }
+        }
+
+        return `
+          <button
+            type="button"
+            onclick="selectDay('${d}')"
+            class="card-lift text-left p-4 rounded-2xl border-2 transition cursor-pointer space-y-2 ${
+              active
+                ? "bg-emerald-50/90 border-[#14532d] ring-2 ring-[#14532d]/20"
+                : "bg-[#f9fbf9] border-slate-200 hover:bg-white hover:border-emerald-400"
+            }"
+          >
+            <div class="flex items-center justify-between gap-2">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-slate-600">Día ${idx + 1} • ${d}</span>
+              ${trendBadge}
+            </div>
+            <div class="flex items-baseline justify-between">
+              <p class="text-xl font-extrabold text-[#14532d]">${fmt(dSales)}</p>
+              <span class="text-[11px] font-bold text-slate-500">${dLines} ${dLines === 1 ? "registro" : "registros"}</span>
+            </div>
+            <div class="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div class="bar-fill h-full bg-gradient-to-r from-[#14532d] to-[#ea780b] rounded-full" style="width:${barPct}%"></div>
+            </div>
+            <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 border-t border-slate-200/70">
+              <span>Gastos día: <strong class="text-rose-600">${fmt(dExp)}</strong></span>
+              <span>Neto día: <strong class="text-slate-800">${fmt(dSales - dExp)}</strong></span>
+            </div>
+          </button>`;
+      }).join("");
+
+      // Desglose por producto
+      const scopedSales = selectedDay === "ALL" ? db.sales : db.sales.filter(x => x.date === selectedDay);
+      const scopedTotal = scopedSales.reduce((s, x) => s + Number(x.amount), 0);
+
+      document.getElementById("productSectionTitle").textContent = selectedDay === "ALL"
+        ? "Desglose de ventas por producto — Todos los días"
+        : `Desglose de ventas por producto — Jornada ${selectedDay}`;
+      document.getElementById("productSectionSubtitle").textContent = `Total en vista: ${fmt(scopedTotal)} (${scopedSales.length} registros)`;
+
+      const agg = {};
+      scopedSales.forEach(s => {
+        if (!agg[s.product]) agg[s.product] = { amount: 0, count: 0 };
+        agg[s.product].amount += Number(s.amount);
+        agg[s.product].count += 1;
+      });
+
+      const desc = Object.entries(agg).sort((a, b) => b[1].amount - a[1].amount);
+      const ordered = sortDesc ? desc : [...desc].reverse();
+      const maxProdVal = desc.length ? desc[0][1].amount : 1;
+
+      document.getElementById("topProductText").textContent = desc.length
+        ? `${desc[0][0]} • ${fmt(desc[0][1].amount)} (${desc[0][1].count} ${desc[0][1].count === 1 ? "vez" : "veces"})`
+        : "Sin datos";
+      document.getElementById("bottomProductText").textContent = desc.length
+        ? `${desc[desc.length - 1][0]} • ${fmt(desc[desc.length - 1][1].amount)} (${desc[desc.length - 1][1].count} ${desc[desc.length - 1][1].count === 1 ? "vez" : "veces"})`
+        : "Sin datos";
+
+      document.getElementById("productBarsList").innerHTML = ordered.length
+        ? ordered.map(([prod, info], idx) => {
+            const widthPct = Math.max(7, Math.round((info.amount / maxProdVal) * 100));
+            const sharePct = scopedTotal > 0 ? ((info.amount / scopedTotal) * 100).toFixed(1) : "0.0";
+            const grad = idx === 0 && sortDesc ? "from-[#14532d] to-emerald-600" : "from-[#ea780b] to-amber-500";
+            return `
+              <div class="p-3 rounded-2xl bg-[#f9fbf9] hover:bg-white border border-slate-200/80 transition space-y-1.5">
+                <div class="flex items-center justify-between gap-2 text-xs sm:text-sm">
+                  <div class="font-extrabold text-slate-900">
+                    <span class="text-slate-400 mr-1">${idx + 1}.</span>${prod}
+                    <span class="ml-1.5 px-2 py-0.5 rounded-full bg-white border border-slate-200 text-[10px] font-bold text-slate-600">
+                      ${info.count} ${info.count === 1 ? "vez" : "veces"} • ${sharePct}%
+                    </span>
+                  </div>
+                  <span class="font-extrabold text-[#14532d] shrink-0">${fmt(info.amount)}</span>
+                </div>
+                <div class="w-full h-2.5 bg-slate-200 rounded-full overflow-hidden">
+                  <div class="bar-fill h-full bg-gradient-to-r ${grad} rounded-full" style="width:${widthPct}%"></div>
+                </div>
+              </div>`;
+          }).join("")
+        : `<p class="text-xs text-slate-400 py-4">No hay ventas en este filtro.</p>`;
+
+      // Libro de entradas
+      const visibleSales = selectedDay === "ALL" ? db.sales : db.sales.filter(x => x.date === selectedDay);
+      document.getElementById("salesCountBadge").textContent = `${visibleSales.length} líneas`;
+      document.getElementById("salesLedger").innerHTML = visibleSales.length
+        ? visibleSales.map(s => `
+          <div class="py-2.5 flex items-center justify-between gap-2">
+            <div>
+              <p class="font-bold text-slate-800">${s.product}</p>
+              <p class="text-[11px] text-slate-400">${s.date} • <span class="text-[#14532d] font-semibold">${s.category}</span> • ${s.method}${Number(s.qty) > 0 ? ` • ${fmtQty(s.qty)} u.` : ""}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="px-2.5 py-1 rounded-xl bg-emerald-50 text-[#14532d] font-extrabold">${fmt(s.amount)}</span>
+              <button
+                type="button"
+                onclick="deleteSale(${s.id})"
+                title="Eliminar venta"
+                class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-500 font-bold text-[11px] cursor-pointer transition"
+              >
+                ✕
+              </button>
+            </div>
+          </div>`).join("")
+        : `<p class="py-4 text-slate-400">Sin entradas en este filtro.</p>`;
+
+      // Libro de gastos diarios
+      const visibleExp = selectedDay === "ALL" ? db.expenses : db.expenses.filter(x => x.date === selectedDay);
+      document.getElementById("expensesCountBadge").textContent = `${visibleExp.length} ${visibleExp.length === 1 ? "gasto" : "gastos"}`;
+      document.getElementById("expensesLedger").innerHTML = visibleExp.length
+        ? visibleExp.map(g => `
+          <div class="py-2.5 flex items-center justify-between gap-2">
+            <div>
+              <p class="font-bold text-slate-800">${g.description}</p>
+              <p class="text-[11px] text-slate-400">${g.date} • <span class="text-rose-600 font-semibold">${g.type}</span> • ${g.method}</p>
+            </div>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="px-2.5 py-1 rounded-xl bg-rose-50 text-rose-600 font-extrabold">${fmt(g.amount)}</span>
+              <button
+                type="button"
+                onclick="deleteExpense(${g.id})"
+                title="Eliminar gasto"
+                class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-rose-100 hover:text-rose-700 text-slate-500 font-bold text-[11px] cursor-pointer transition"
+              >
+                ✕
+              </button>
+            </div>
+          </div>`).join("")
+        : `<p class="py-4 text-slate-400">Sin gastos en este filtro.</p>`;
+    }
+  </script>
+</body>
+</html>
