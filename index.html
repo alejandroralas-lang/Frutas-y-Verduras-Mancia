@@ -302,12 +302,10 @@
     </aside>
   </div>
 
-  <!-- Script de la Tienda 100% Sincronizado con Control Total -->
   <script>
     const WHATSAPP_ORDERS = "50368271549";
     const STORAGE_KEY = "biz_control_total_v6";
 
-    // Fecha local exacta de El Salvador (UTC-6)
     const todaySV = () => {
       const d = new Date(Date.now() - 6 * 3600 * 1000);
       return d.toISOString().split("T")[0];
@@ -404,7 +402,6 @@
       setInterval(updateOpenStatus, 60000);
     });
 
-    // Escuchar cambios hechos desde dashboard.html en tiempo real
     window.addEventListener("storage", (e) => {
       if (e.key === STORAGE_KEY) {
         renderCategoryFilters();
@@ -433,7 +430,7 @@
         const badge = document.getElementById("openStatusBadge");
         if (!badge) return;
         const nowSV = new Date(Date.now() - 6 * 3600 * 1000);
-        const day = nowSV.getUTCDay(); // 0=Dom, 6=Sáb
+        const day = nowSV.getUTCDay();
         const mins = nowSV.getUTCHours() * 60 + nowSV.getUTCMinutes();
         const isWeekend = (day === 0 || day === 6);
         const isOpen = isWeekend
@@ -615,7 +612,6 @@
       const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
       const today = todaySV();
 
-      // Registrar en Control Total y descontar inventario
       const db = loadStoreDB();
       const baseId = Date.now();
       cart.forEach((item, idx) => {
